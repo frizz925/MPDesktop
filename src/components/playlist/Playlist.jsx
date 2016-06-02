@@ -11,6 +11,7 @@ const styles = {
     'tr': {
         'base': {
             cursor: "pointer",
+            transition: "background-color 0.1s ease-out",
             ':hover': {
                 backgroundColor: "rgba(0,0,0,0.05)"
             }
