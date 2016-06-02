@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import AppSidebar from 'components/AppSidebar.jsx';
-import { grey700 } from 'material-ui/styles/colors';
+import { connect } from 'react-redux';
+import Sidebar from 'components/app/Sidebar.jsx';
+import { grey200 } from 'material-ui/styles/colors';
 
-export default class App extends Component {
+class App extends Component {
     baseStyle = {
-        backgroundColor: grey700,
+        backgroundColor: grey200,
         width: "100%",
         height: "100vh"
     }
@@ -17,7 +18,7 @@ export default class App extends Component {
     render() {
         return (
             <div style={this.baseStyle}>
-                <AppSidebar />
+                <Sidebar />
                 <div style={this.appStyle}>
                     {this.props.children}
                 </div>
@@ -25,3 +26,5 @@ export default class App extends Component {
         );
     }
 }
+
+export default connect(null, null)(App);

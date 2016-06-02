@@ -1,4 +1,8 @@
 h3 {
-    color: #fff;
+    color: #555;
     margin: 0;
+}
+
+.paper {
+    padding: 20px;
 }

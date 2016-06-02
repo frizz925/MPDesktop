@@ -1,7 +1,7 @@
 {
-  "name": "electron-quick-start",
+  "name": "mpdesktop",
   "version": "1.0.0",
-  "description": "A minimal Electron application",
+  "description": "Desktop MPD client made using Electron",
   "main": "main.js",
   "scripts": {
     "start": "electron main.js",
@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/electron/electron-quick-start.git"
+    "url": "git@github.com:Frizz925/MPDesktop"
   },
   "keywords": [
     "Electron",
@@ -17,12 +17,12 @@
     "start",
     "tutorial"
   ],
-  "author": "GitHub",
-  "license": "CC0-1.0",
+  "author": "Frizz925 <Frizz925@hotmail.com>",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/electron/electron-quick-start/issues"
+    "url": "https://github.com/Frizz925/MPDesktop/issues"
   },
-  "homepage": "https://github.com/electron/electron-quick-start#readme",
+  "homepage": "https://github.com/Frizz925/MPDesktop#readme",
   "devDependencies": {
     "babel-core": "^6.9.1",
     "babel-eslint": "^6.0.4",
@@ -43,6 +43,7 @@
     "normalize-css": "^2.3.1",
     "react": "^15.1.0",
     "react-dom": "^15.1.0",
+    "react-redux": "^4.4.5",
     "react-router": "^2.4.1",
     "react-router-redux": "^4.0.4",
     "react-tap-event-plugin": "^1.0.0",

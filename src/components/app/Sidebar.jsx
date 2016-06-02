@@ -4,7 +4,7 @@ import Drawer from 'material-ui/Drawer';
 import MenuItem from 'material-ui/MenuItem';
 import FontIcon from 'material-ui/FontIcon';
 
-export default class App extends Component {
+export default class Sidebar extends Component {
     constructor(props) {
         super(props);
         this.state = { open: true };

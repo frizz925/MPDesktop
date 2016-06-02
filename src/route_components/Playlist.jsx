@@ -1,7 +1,14 @@
 import React, { Component } from 'react';
+import Paper from 'components/Paper.jsx';
+
+import PlaybackControl from 'components/playlist/PlaybackControl.jsx';
 
 export default class Playlist extends Component {
     render() {
-        return <h3>Hello!</h3>;
+        return (
+            <div>
+                <PlaybackControl />
+            </div>
+        );
     }
 }
