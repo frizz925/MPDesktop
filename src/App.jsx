@@ -2,24 +2,28 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Sidebar from 'components/app/Sidebar.jsx';
 import { grey200 } from 'material-ui/styles/colors';
+import './App.css';
 
 class App extends Component {
     baseStyle = {
-        backgroundColor: grey200,
-        width: "100%",
-        height: "100vh"
+        width: "100%"
     }
 
-    appStyle = {
+    wrapperStyle = {
+        position: "relative",
+        width: "calc(100% - 200px)",
+        //height: "calc(100vh - 60px)",
+        height: "100vh",
         marginLeft: "200px",
-        padding: "20px"
+        backgroundColor: grey200,
+        overflow: "auto"
     }
 
     render() {
         return (
             <div style={this.baseStyle}>
                 <Sidebar />
-                <div style={this.appStyle}>
+                <div style={this.wrapperStyle}>
                     {this.props.children}
                 </div>
             </div>

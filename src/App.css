@@ -1,0 +1,25 @@
+h3, th {
+    color: #555;
+}
+
+h3 {
+    margin: 0;
+}
+
+.paper {
+    padding: 20px;
+}
+
+table {
+    width: 100%;
+}
+
+th, td {
+    padding: 8px 20px 5px 20px;
+    border-bottom: 1px solid #eee;
+}
+
+th {
+    text-align: left;
+}
+

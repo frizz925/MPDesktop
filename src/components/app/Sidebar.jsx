@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router';
 import Drawer from 'material-ui/Drawer';
 import MenuItem from 'material-ui/MenuItem';
-import FontIcon from 'material-ui/FontIcon';
+import MaterialIcon from 'components/MaterialIcon.jsx';
 
 export default class Sidebar extends Component {
     constructor(props) {
@@ -44,7 +44,7 @@ export default class Sidebar extends Component {
         return (
             <Link to={path}>
                 <MenuItem>
-                    <FontIcon style={this.iconStyle} className="material-icons">{icon}</FontIcon>
+                    <MaterialIcon style={this.iconStyle} icon={icon} />
                     <span style={this.textStyle}>{text}</span>
                 </MenuItem>
             </Link>

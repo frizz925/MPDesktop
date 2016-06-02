@@ -5,7 +5,8 @@ export default class Paper extends Component {
     constructor(props) {
         super(props);
         this.paperStyle = {
-            padding: "20px"
+            padding: "20px",
+            margin: "20px"
         };
 
         if (props.style) {
