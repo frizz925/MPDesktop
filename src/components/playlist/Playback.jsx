@@ -4,6 +4,7 @@ import Radium from 'radium';
 import Paper from 'components/Paper.jsx';
 import Slider from 'material-ui/Slider';
 import MaterialIcon from 'components/MaterialIcon.jsx';
+import CheckBox from 'material-ui/CheckBox';
 import { grey400 } from 'material-ui/styles/colors';
 
 const styles = {
@@ -77,15 +78,30 @@ const styles = {
             marginTop: "-8px"
         },
         'icon': {
+            padding: "8px",
+            cursor: "pointer",
+            ':hover': {
+                backgroundColor: "rgba(0,0,0,0.05)"
+            }
+        },
+        'iconWrapper': {
             display: "table-cell",
             verticalAlign: "top",
-            paddingTop: "20px",
-            paddingRight: "20px"
+            paddingTop: "12px",
+            paddingRight: "12px"
         },
         'slider': {
             display: "table-cell",
             verticalAlign: "top",
             width: "100%"
+        }
+    },
+    'checkbox': {
+        'base': {
+            marginTop: "-24px"
+        },
+        'input': {
+            marginTop: "8px"
         }
     },
     'cls': {
@@ -127,12 +143,19 @@ class Playback extends Component {
                             {this.button("repeat")}
                         </div>
                         <div style={this.styles().volume.base}>
-                            <MaterialIcon style={this.styles().volume.icon} icon="volume_up" />
+                            <div style={this.styles().volume.iconWrapper}>
+                                <MaterialIcon style={this.styles().volume.icon} icon="volume_up" />
+                            </div>
                             <Slider 
                                 style={this.styles().volume.slider} 
                                 min={0}
                                 max={100}
                                 defaultValue={100} />
+                        </div>
+                        <div style={this.styles().checkbox.base}>
+                            {this.checkBox("Single mode")}
+                            {this.checkBox("Consume mode")}
+                            <div style={this.styles().cls}></div>
                         </div>
                     </div>
                 </div>
@@ -143,6 +166,10 @@ class Playback extends Component {
     button(icon) {
         var style = this.styles().control[icon] || {};
         return <MaterialIcon key={icon} style={[this.styles().control.icon, style]} icon={icon} />;
+    }
+
+    checkBox(label) {
+        return <CheckBox style={this.styles().checkbox.input} label={label} />;
     }
 }
 
