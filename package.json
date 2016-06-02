@@ -30,10 +30,12 @@
     "babel-preset-es2015": "^6.9.0",
     "babel-preset-react": "^6.5.0",
     "babel-preset-stage-0": "^6.5.0",
+    "css-loader": "^0.23.1",
     "electron-prebuilt": "^1.2.0",
     "eslint": "^2.11.1",
     "eslint-plugin-react": "^5.1.1",
     "react-hot-loader": "^1.3.0",
+    "style-loader": "^0.13.1",
     "webpack": "^1.13.1",
     "webpack-dev-server": "^1.14.1"
   },
@@ -41,12 +43,14 @@
     "lodash": "^4.13.1",
     "material-ui": "^0.15.0",
     "normalize-css": "^2.3.1",
+    "radium": "^0.17.1",
     "react": "^15.1.0",
     "react-dom": "^15.1.0",
     "react-redux": "^4.4.5",
     "react-router": "^2.4.1",
     "react-router-redux": "^4.0.4",
     "react-tap-event-plugin": "^1.0.0",
+    "reactcss": "^0.4.5",
     "redux": "^3.5.2"
   }
 }
