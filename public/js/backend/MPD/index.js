@@ -57,15 +57,17 @@ function sendCommand(command, callback) {
 
 const client = new net.Socket();
 
-client.connect(6600, "raspberrypi.lan", function() {
-    console.log("Connected");
-    sendCommand("status", function(resp) {
-        console.log(resp);
-    });
-});
-client.on('data', onData);
-client.on('error', console.error);
-client.on('close', function() {
-    console.log("Disconnected");
-});
 
+module.exports = {
+    init: function(host, port, callback) {
+        client.connect(port, host, function() {
+            console.log("Connected");
+        });
+        client.on('data', onData);
+        client.on('error', console.error);
+        client.on('close', function() {
+            console.log("Disconnected");
+        });
+    },
+    sendCommand
+}
