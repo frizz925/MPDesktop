@@ -17,8 +17,8 @@ import Settings from 'route_components/Settings.jsx';
 injectTapEventPlugin();
 
 _.extend(darkBaseTheme.palette, {
-    primary1Color: Colors.blueGrey500,
-    primary2Color: Colors.blueGrey700
+    primary1Color: Colors.blueGrey200,
+    primary2Color: Colors.blueGrey400
 });
 const muiTheme = getMuiTheme(darkBaseTheme);
 

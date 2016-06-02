@@ -10,7 +10,8 @@ export default class App extends Component {
     }
 
     appStyle = {
-        marginLeft: "200px"
+        marginLeft: "200px",
+        padding: "20px"
     }
 
     render() {
