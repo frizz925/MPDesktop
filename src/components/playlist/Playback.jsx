@@ -73,17 +73,19 @@ const styles = {
     },
     'volume': {
         'base': {
+            display: "table",
             marginTop: "-8px"
         },
         'icon': {
+            display: "table-cell",
             verticalAlign: "top",
-            marginTop: "20px",
-            marginRight: "20px"
+            paddingTop: "20px",
+            paddingRight: "20px"
         },
         'slider': {
+            display: "table-cell",
             verticalAlign: "top",
-            display: "inline-block",
-            width: "90%"
+            width: "100%"
         }
     },
     'cls': {
