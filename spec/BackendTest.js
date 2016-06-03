@@ -6,7 +6,7 @@ const PORT = 6600;
 
 function commandAndPrint(mpd, cmd, done) {
     mpd.sendCommand(cmd, function(resp) {
-        //console.log(resp);
+        console.log(resp);
         done();
     });
 }
@@ -33,10 +33,13 @@ describe("MPD Test", function() {
     });
 
     it("Receive playlist", function(done) {
+        /*
         mpd.sendCommand("playlistinfo", function(playlist, buffer) {
             console.log(buffer);
             done();
         });
+        */
+       commandAndPrint(mpd, "playlistinfo", done);
     });
 
     it("Play a song", function(done) {

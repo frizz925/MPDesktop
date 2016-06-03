@@ -1,6 +1,5 @@
 var _ = require('lodash');
 var net = require('net');
-var Events = require('./events');
 
 /* flag definition */
 const FLAG_INIT = "init";
@@ -11,6 +10,7 @@ module.exports = function() {
 
     /* queue definition */
     const commandQueue = [];
+    var currentCommand;
 
     /* global variables declaration */
     var client, initCallback;
@@ -39,10 +39,14 @@ module.exports = function() {
     };
 
     self.sendCommand = function(command, callback) {
-        commandQueue.push({
-            command, callback
-        });
-        client.write(command + "\r\n");
+        var cmd = { command, callback };
+        if (!currentCommand) { // no pending/ongoing command
+            currentCommand = cmd;
+            // execute right away
+            executeCurrentCommand();
+        } else { // queue for next command execution
+            commandQueue.push(cmd);
+        }
         return self;
     };
 
@@ -51,9 +55,41 @@ module.exports = function() {
         return self;
     };
 
+    /* command queueing function definitions */
+    function sendCommandInQueue() {
+        if (currentCommand) throw "Can't send command when there's already an ongoing command!";
+        if (commandQueue.length <= 0) return;
+        currentCommand = commandQueue.shift();
+        executeCurrentCommand();
+    }
+
+    function executeCurrentCommand() {
+        if (!currentCommand) throw "No pending command to execute!";
+        client.write(currentCommand.command + "\r\n");
+    }
+
+
     /* response handler definitions */
     const respHandler = {
-
+        default: function(parts) {
+            var resp = {};
+            _.each(parseResponse(parts), function(part) {
+                resp[part.key] = part.value;
+            });
+            return resp;
+        },
+        'playlistinfo': function(parts) {
+            var resp = [];
+            var obj = {};
+            _.each(parseResponse(parts), function(part) {
+                obj[part.key] = part.value;
+                if (part.key == "Id") {
+                    resp.push(obj);
+                    obj = {};
+                }
+            });
+            return resp;
+        }
     };
 
     /* data handler definitions */
@@ -64,29 +100,38 @@ module.exports = function() {
             var version = _.map(parts, function(part) {
                 return Number(part);
             });
-
             flag = FLAG_DEFAULT;
             self.server.version = version;
-
             initCallback(version);
-
             return buffer.substring(buffer.indexOf(text) + text.length);
         },
         default: function(buffer) {
+            var command = currentCommand;
             var parts = buffer.match(/(.+): (.+)/gi);
-            var resp = {};
-            _.each(parts, function(part) {
-                var parts = part.match(/(.+): (.+)/);
-                var key = parts[1];
-                var value = parts[2];
-                if (!isNaN(value)) value = Number(value);
-                resp[key] = value;
-            });
-            commandQueue.shift().callback(resp, buffer);
+            var handler = respHandler[command.command] || respHandler.default;
+            var resp = handler(parts);
+            command.callback(resp, buffer);
+            
+            currentCommand = null;
+            sendCommandInQueue();
+
             buffer = buffer.substring(buffer.indexOf("OK") + 2);
             return buffer;
         }
     };
+
+    /* helper function definitions */
+    function parseResponse(parts) {
+        var arr = [];
+        _.each(parts, function(part) {
+            var parts = part.match(/(.+): (.+)/);
+            var key = parts[1];
+            var value = parts[2];
+            if (!isNaN(value)) value = Number(value);
+            arr.push({ key, value });
+        });
+        return arr;
+    }
 
     /* callback function definitions */
     function onData(data) {

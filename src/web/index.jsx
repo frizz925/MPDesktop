@@ -18,13 +18,12 @@ import Settings from 'route_components/Settings.jsx';
 
 injectTapEventPlugin();
 
-/*
-_.extend(darkBaseTheme.palette, {
-    primary1Color: Colors.blueGrey200,
-    primary2Color: Colors.blueGrey400
-});
-const muiTheme = getMuiTheme(darkBaseTheme);
-*/
+const backend = window.backend;
+const settings = {
+    host: "localhost",
+    port: 6600
+};
+
 const muiTheme = getMuiTheme({
     palette: {
         primary1Color: Colors.blueGrey500,
@@ -33,12 +32,54 @@ const muiTheme = getMuiTheme({
 });
 
 const store = createStore((state, action) => {
+    switch (action.type) {
+        case 'UPDATE_STATUS':
+            state.status = action.status;
+            break;
+        case 'UPDATE_PLAYLIST':
+            state.playlist = action.playlist;
+            break;
+        case 'UPDATE_SETTINGS':
+            state.settings = action.settings;
+            break;
+        case 'UPDATE_SONG':
+            state.song = action.song;
+            break;
+        default:
+            return state;
+    }
     return _.assign({}, state);
 }, {
-    settings: {
-        host: "localhost",
-        port: 6600
-    }
+    song: {},
+    status: {},
+    playlist: [],
+    settings
+});
+
+backend.connect(settings.host, settings.port, function(resp) {
+    backend.command("status", function(status) {
+        console.log(status);
+        store.dispatch({
+            type: 'UPDATE_STATUS',
+            status
+        });
+    });
+
+    backend.command("currentsong", function(song) {
+        console.log(song);
+        store.dispatch({
+            type: 'UPDATE_SONG',
+            song
+        });
+    });
+
+    backend.command("playlistinfo", function(playlist) {
+        console.log(playlist);
+        store.dispatch({
+            type: 'UPDATE_PLAYLIST',
+            playlist
+        });
+    });
 });
 
 render((
@@ -54,3 +95,4 @@ render((
         </Provider>
     </MuiThemeProvider>
 ), document.getElementById("root"));
+
