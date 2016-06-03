@@ -11,7 +11,7 @@ export default class MaterialIcon extends Component {
     }
 
     classes() {
-        return {
+        var classes = {
             'default': {
                 'base': {
                     color: "#333",
@@ -19,37 +19,44 @@ export default class MaterialIcon extends Component {
                     display: "inline-block",
                     verticalAlign: "middle"
                 }
+            },
+            'hovered': {
+                'base': {}
             }
+        }
+
+        if (this.props.style) {
+            if (Array.isArray(this.props.style)) {
+                _.each(this.props.style, (style) => this.applyStyle(classes, "base", style));
+            } else {
+                this.applyStyle(classes, "base", this.props.style);
+            }
+        }
+
+        return classes;
+    }
+
+    applyStyle(classes, name, style) {
+        _.assign(classes.default[name], style);
+        if (style[':hover']) {
+            _.assign(classes.hovered[name], style[':hover']);
         }
     }
 
-    render() {
-        var styles = this.styles().base;
-        if (this.props.style) {
-            if (Array.isArray(this.props.style)) {
-                _.each(this.props.style, (style) => {
-                    _.assign(styles, style);
-                    this.assignHover(styles, style);
-                });
-            } else {
-                _.assign(styles, this.props.style);
-                this.assignHover(styles, this.props.style);
-            }
-        }
+    styles() {
+        return this.css({
+            'hovered': this.state.hover
+        });
+    }
 
+    render() {
         return <FontIcon 
-                    style={styles} 
+                    style={this.styles().base} 
                     onMouseEnter={this.enableHover.bind(this)} 
                     onMouseLeave={this.disableHover.bind(this)}
                     className="material-icons">
                         {this.props.icon}
                 </FontIcon>
-    }
-
-    assignHover(styles, style) {
-        if (!this.state.hover) return;
-        if (!style[':hover']) return;
-        _.assign(styles, style[':hover']);
     }
 
     enableHover() {

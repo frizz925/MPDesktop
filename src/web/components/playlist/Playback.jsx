@@ -4,7 +4,7 @@ import Radium from 'radium';
 import Paper from 'components/Paper.jsx';
 import Slider from 'material-ui/Slider';
 import MaterialIcon from 'components/MaterialIcon.jsx';
-import CheckBox from 'material-ui/CheckBox';
+import CheckBox from 'material-ui/Checkbox';
 import { grey400 } from 'material-ui/styles/colors';
 
 const styles = {

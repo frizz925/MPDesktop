@@ -6,7 +6,7 @@ module.exports = {
     entry: [
         'webpack-dev-server/client?http://127.0.0.1:3000',
         'webpack/hot/only-dev-server',
-        __dirname + '/src/index.jsx'
+        __dirname + '/src/web/index.jsx'
     ],
 
     output: {
@@ -19,23 +19,33 @@ module.exports = {
         loaders: [{
             test: /\.js(x)?$/,
             loaders: ['react-hot', 'babel'],
-            include: path.join(__dirname, 'src')
+            include: [
+                path.join(__dirname, 'src/web')
+            ],
+            exclude: [
+                path.join(__dirname, 'public/js'),
+                path.join(__dirname, 'src/backend')
+            ]
         }, {
             test: /\.css$/,
-            loaders: ['style', 'css']
+            loaders: ['style', 'css'],
+            exclude: [
+                path.join(__dirname, 'public/css')
+            ]
         }]
     },
 
     resolve: {
         root: [
-            path.join(__dirname, 'src')
+            path.join(__dirname, 'src/web')
         ]
     },
 
     plugins: [
         new webpack.HotModuleReplacementPlugin(),
         new webpack.ProvidePlugin({
-            "_": "lodash"
+            "_": "lodash",
+            "$": "jquery"
         })
     ]
 };
