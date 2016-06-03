@@ -16,11 +16,16 @@ import Playlist from 'route_components/Playlist.jsx';
 import Output from 'route_components/Output.jsx';
 import Settings from 'route_components/Settings.jsx';
 
+import actions from './actions';
+
 injectTapEventPlugin();
 
-const backend = window.backend;
+const MPD = window.backend;
+const LASTFM_API_KEY = "1dfdaeab9e98333ba63171987cff9352";
+const LASTFM_API_URL = "http://ws.audioscrobbler.com/2.0/";
+
 const settings = {
-    host: "localhost",
+    host: "raspberrypi.lan",
     port: 6600
 };
 
@@ -31,56 +36,119 @@ const muiTheme = getMuiTheme({
     }
 });
 
-const store = createStore((state, action) => {
-    switch (action.type) {
-        case 'UPDATE_STATUS':
-            state.status = action.status;
-            break;
-        case 'UPDATE_PLAYLIST':
-            state.playlist = action.playlist;
-            break;
-        case 'UPDATE_SETTINGS':
-            state.settings = action.settings;
-            break;
-        case 'UPDATE_SONG':
-            state.song = action.song;
-            break;
-        default:
-            return state;
-    }
-    return _.assign({}, state);
-}, {
+const store = createStore(actions, {
     song: {},
     status: {},
     playlist: [],
+    playback: {
+        image_url: "",
+        current: 0,
+        duration: -1
+    },
+    outputs: [],
     settings
 });
 
-backend.connect(settings.host, settings.port, function(resp) {
-    backend.command("status", function(status) {
-        console.log(status);
-        store.dispatch({
-            type: 'UPDATE_STATUS',
-            status
-        });
-    });
+var mpd;
 
-    backend.command("currentsong", function(song) {
-        console.log(song);
-        store.dispatch({
-            type: 'UPDATE_SONG',
-            song
-        });
-    });
+function updateCover(song) {
+    var query = {
+        method: "album.getInfo",
+        artist: song.Artist,
+        album: song.Album,
+        api_key: LASTFM_API_KEY,
+        format: "json"
+    };
 
-    backend.command("playlistinfo", function(playlist) {
-        console.log(playlist);
+    $.ajax({
+        url: LASTFM_API_URL + "?" + $.param(query),
+        dataType: "json",
+        success: (data) => {
+            var image_url = data.album.image[3]["#text"];
+            store.dispatch({
+                type: 'UPDATE_COVER',
+                image_url
+            });
+        },
+        error: console.error
+    });
+}
+
+function fetchPlaylist(song) {
+    var start = song ? song.Pos - 10 : 0;
+    var end = song ? song.Pos + 10 : 20;
+    mpd.command("playlistinfo " + start + ":" + end, function(playlist) {
         store.dispatch({
             type: 'UPDATE_PLAYLIST',
             playlist
         });
     });
-});
+}
+
+function updateStatus() {
+    mpd.command("status", (status) => {
+        store.dispatch({
+            type: 'UPDATE_STATUS',
+            status
+        });
+    });
+}
+
+function updateSong() {
+    mpd.command("currentsong", (song) => {
+        if (_.isEmpty(song)) return;
+        var state = store.getState();
+        var oldSong = state.song;
+        store.dispatch({
+            type: 'UPDATE_SONG',
+            song
+        });
+
+        if (song.Id == oldSong.Id) return;
+        fetchPlaylist(song);
+        updateCover(song);
+    });
+}
+
+function updateOutput() {
+    mpd.command("outputs", (outputs) => {
+        store.dispatch({
+            type: 'UPDATE_OUTPUT',
+            outputs
+        });
+    });
+}
+
+function connectMPD() {
+    var settings = store.getState().settings;
+    mpd = window.mpd = new MPD();
+    mpd.connect(settings.host, settings.port, {
+        init: () => {
+            updateStatus();
+            updateSong();
+            updateOutput();
+        },
+        update: (resp) => {
+            if (_.isEmpty(resp)) return;
+            switch (resp.changed) {
+                case "player":
+                    updateStatus();
+                    updateSong();
+                    break;
+                case "output":
+                    updateStatus();
+                    updateOutput();
+                    break;
+                default:
+                    updateStatus();
+                    break;
+            }
+        }
+    });
+    mpd.on('close', connectMPD);
+}
+
+connectMPD();
 
 render((
     <MuiThemeProvider muiTheme={muiTheme}>
@@ -95,4 +163,12 @@ render((
         </Provider>
     </MuiThemeProvider>
 ), document.getElementById("root"));
+
+setInterval(() => {
+    var state = store.getState();
+    if (state.status.state != "play") return;
+    store.dispatch({
+        type: 'INCREMENT_SEEKER'
+    });
+}, 1000);
 

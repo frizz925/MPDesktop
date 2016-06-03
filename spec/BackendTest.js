@@ -1,11 +1,11 @@
 var assert = require('chai').assert;
 var MPD = require('../src/backend/MPD');
 
-const HOST = "localhost";
+const HOST = "raspberrypi.lan";
 const PORT = 6600;
 
 function commandAndPrint(mpd, cmd, done) {
-    mpd.sendCommand(cmd, function(resp) {
+    mpd.command(cmd, function(resp) {
         console.log(resp);
         done();
     });
@@ -16,10 +16,15 @@ describe("MPD Test", function() {
     var success = false;
 
     before(function(done) {
-        mpd.connect(HOST, PORT, function(version) {
-            success = true;
-            console.log(version);
-            done();
+        mpd.connect(HOST, PORT, {
+            init: function(version) {
+                success = true;
+                console.log(version);
+                done();
+            },
+            update: function(resp, buffer) {
+                console.log("IDLE");
+            }
         });
         mpd.on('error', done);
     });
@@ -39,7 +44,7 @@ describe("MPD Test", function() {
             done();
         });
         */
-       commandAndPrint(mpd, "playlistinfo", done);
+       commandAndPrint(mpd, "playlistinfo 0:10", done);
     });
 
     it("Play a song", function(done) {

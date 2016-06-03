@@ -1,5 +1,6 @@
 var _ = require('lodash');
 var net = require('net');
+var respHandler = require('./responseHandler');
 
 /* flag definition */
 const FLAG_INIT = "init";
@@ -13,7 +14,8 @@ module.exports = function() {
     var currentCommand;
 
     /* global variables declaration */
-    var client, initCallback;
+    var client, initCallback, updateCallback;
+    var idling = false;
     var flag = FLAG_INIT;
     var buffer = "";
 
@@ -21,8 +23,9 @@ module.exports = function() {
     self.server = {};
 
     /* public function definitions */
-    self.connect = function(host, port, callback) {
-        initCallback = callback;
+    self.connect = function(host, port, callbacks) {
+        initCallback = callbacks.init;
+        updateCallback = callbacks.update;
         client = new net.Socket();
         client.connect(port, host);
         client.on('data', onData);
@@ -38,13 +41,26 @@ module.exports = function() {
         return self;
     };
 
-    self.sendCommand = function(command, callback) {
+    self.idle = function() {
+        idling = true;
+        self.command("idle", function(resp, buffer) {
+            idling = false;
+            updateCallback(resp, buffer);
+        });
+        return self;
+    };
+
+    self.unidle = function() {
+        client.write("noidle\r\n");
+    };
+
+    self.command = function(command, callback) {
         var cmd = { command, callback };
-        if (!currentCommand) { // no pending/ongoing command
+        if (idling) self.unidle();
+        if (!currentCommand) {
             currentCommand = cmd;
-            // execute right away
             executeCurrentCommand();
-        } else { // queue for next command execution
+        } else {
             commandQueue.push(cmd);
         }
         return self;
@@ -56,9 +72,13 @@ module.exports = function() {
     };
 
     /* command queueing function definitions */
-    function sendCommandInQueue() {
-        if (currentCommand) throw "Can't send command when there's already an ongoing command!";
-        if (commandQueue.length <= 0) return;
+    function commandInQueue() {
+        //if (currentCommand) throw "Can't send command when there's already an ongoing command!";
+        if (currentCommand) return;
+        if (commandQueue.length <= 0) {
+            if (!idling) self.idle();
+            return;
+        }
         currentCommand = commandQueue.shift();
         executeCurrentCommand();
     }
@@ -67,30 +87,6 @@ module.exports = function() {
         if (!currentCommand) throw "No pending command to execute!";
         client.write(currentCommand.command + "\r\n");
     }
-
-
-    /* response handler definitions */
-    const respHandler = {
-        default: function(parts) {
-            var resp = {};
-            _.each(parseResponse(parts), function(part) {
-                resp[part.key] = part.value;
-            });
-            return resp;
-        },
-        'playlistinfo': function(parts) {
-            var resp = [];
-            var obj = {};
-            _.each(parseResponse(parts), function(part) {
-                obj[part.key] = part.value;
-                if (part.key == "Id") {
-                    resp.push(obj);
-                    obj = {};
-                }
-            });
-            return resp;
-        }
-    };
 
     /* data handler definitions */
     const dataHandler = {
@@ -102,36 +98,27 @@ module.exports = function() {
             });
             flag = FLAG_DEFAULT;
             self.server.version = version;
+
             initCallback(version);
-            return buffer.substring(buffer.indexOf(text) + text.length);
+
+            buffer = buffer.substring(buffer.indexOf(text) + text.length);
+            return buffer;
         },
         default: function(buffer) {
             var command = currentCommand;
+            var cmd = command.command.match(/^([a-z]+)/)[1];
             var parts = buffer.match(/(.+): (.+)/gi);
-            var handler = respHandler[command.command] || respHandler.default;
+            var handler = respHandler[cmd] || respHandler.default;
             var resp = handler(parts);
-            command.callback(resp, buffer);
-            
-            currentCommand = null;
-            sendCommandInQueue();
+
+            if (command.callback)
+                command.callback(resp, buffer);
 
             buffer = buffer.substring(buffer.indexOf("OK") + 2);
+            currentCommand = null;
             return buffer;
         }
     };
-
-    /* helper function definitions */
-    function parseResponse(parts) {
-        var arr = [];
-        _.each(parts, function(part) {
-            var parts = part.match(/(.+): (.+)/);
-            var key = parts[1];
-            var value = parts[2];
-            if (!isNaN(value)) value = Number(value);
-            arr.push({ key, value });
-        });
-        return arr;
-    }
 
     /* callback function definitions */
     function onData(data) {
@@ -143,6 +130,7 @@ module.exports = function() {
             console.log("======= FINISH =========");
             */
             buffer = dataHandler[flag](buffer);
+            commandInQueue();
         }
     }
 }

@@ -51,12 +51,11 @@ export default class MaterialIcon extends Component {
 
     render() {
         return <FontIcon 
-                    style={this.styles().base} 
-                    onMouseEnter={this.enableHover.bind(this)} 
-                    onMouseLeave={this.disableHover.bind(this)}
-                    className="material-icons">
-                        {this.props.icon}
-                </FontIcon>
+            style={this.styles().base} 
+            onClick={this.props.onClick || function() { }}
+            onMouseEnter={this.enableHover.bind(this)} 
+            onMouseLeave={this.disableHover.bind(this)}
+            className="material-icons">{this.props.icon}</FontIcon>
     }
 
     enableHover() {

@@ -1,7 +1,7 @@
 var webpack = require('webpack');
 var path = require('path');
 
-module.exports = {
+var config = {
     devtool: 'eval',
     entry: [
         'webpack-dev-server/client?http://127.0.0.1:3000',
@@ -18,7 +18,7 @@ module.exports = {
     module: {
         loaders: [{
             test: /\.js(x)?$/,
-            loaders: ['react-hot', 'babel'],
+            loaders: ['react-hot', 'babel', 'react-map-styles'],
             include: [
                 path.join(__dirname, 'src/web')
             ],
@@ -44,8 +44,21 @@ module.exports = {
     plugins: [
         new webpack.HotModuleReplacementPlugin(),
         new webpack.ProvidePlugin({
-            "_": "lodash",
-            "$": "jquery"
+            _: "lodash",
+            $: "jquery",
+            jQuery: "jquery",
+            "window.jQuery": "jquery"
         })
     ]
 };
+
+if (process.env.NODE_ENV === "production") {
+    config.devtool = "cheap-source-map";
+    config.plugins.push(new webpack.optimize.UglifyJsPlugin({
+        compress: {
+            warnings: false
+        }
+    }));
+}
+
+module.exports = config;

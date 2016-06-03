@@ -4,7 +4,14 @@ import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 import Paper from 'components/Paper.jsx';
 
+const settings = {};
+
 class Settings extends Component {
+    constructor(props) {
+        super(props);
+        _.assign(settings, props.settings);
+    }
+
     textFieldStyle = {
         marginRight: "20px"
     }
@@ -13,41 +20,51 @@ class Settings extends Component {
         return (
             <Paper>
                 <h3>Settings</h3>
-                {this.textField("Host", "MPD server hostname or IP address", this.props.host)}
-                {this.textField("Port", "MPD server port (default: 6600)", this.props.port)}
-                {this.textField("Password", "MPD server password (if required)", this.props.password)}
+                {this.textField("Host", "MPD server hostname or IP address", 'host')}
+                {this.textField("Port", "MPD server port (default: 6600)", 'port')}
+                {this.textField("Password", "MPD server password (if required)", 'password', 'password')}
                 <br />
                 <RaisedButton 
                     label="Save"
-                    primary={true} />
+                    primary={true}
+                    onClick={this.props.save} />
             </Paper>
         );
     }
 
-    textField(label, hint, value, type) {
+    textField(label, hint, name, type) {
         return (
             <div>
                 <TextField
                     style={this.textFieldStyle}
                     floatingLabelText={label}
                     hintText={hint}
-                    value={value}
+                    defaultValue={this.props.settings[name]}
+                    onChange={this.handleChange(name).bind(this)}
                     type={type || "text"} />
             </div>
         );
     }
+
+    handleChange(name) {
+        return (evt, val) => {
+            settings[name] = val;
+        };
+    }
 }
 
-const mapStateToProps = (state) => {
-    return _.assign({}, state.settings);
-};
+const mapStateToProps = (state) => ({
+    settings: state.settings
+});
+
 const mapDispatchToProps = (dispatch, props) => {
     return {
         save: () => {
             dispatch({
                 type: 'UPDATE_SETTINGS',
-                settings: props.settings
+                settings
             });
+            window.mpd.disconnect();
         }
     };
 };

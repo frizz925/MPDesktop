@@ -13,10 +13,6 @@ const styles = {
     'tr': {
         'base': {
             cursor: "pointer",
-            transition: "background-color 0.1s ease-out",
-            ':hover': {
-                backgroundColor: "rgba(0,0,0,0.05)"
-            }
         }
     },
     'th': {
@@ -35,7 +31,7 @@ const styles = {
             textAlign: "center"
         },
         'track': {
-            textAlign: "center"
+            textAlign: "right"
         },
         'duration': {
             textAlign: "right"
@@ -67,8 +63,8 @@ class Playlist extends Component {
                             {this.header("title", "Title")}
                             {this.header("duration", "Duration")}
                         </tr>
-                        {_.map(this.props.playlist, (song, idx) => (
-                            <tr key={idx} style={this.styles().tr.base}>
+                        {_.map(this.filteredPlaylist(), (song, idx) => (
+                            <tr key={idx} style={this.styles().tr.base} onClick={this.rowClick(song)}>
                                 {this.cell("playing", this.playing(song))}
                                 {this.cell("track", song.Track)}
                                 {this.cell("artist", song.Artist)}
@@ -81,6 +77,16 @@ class Playlist extends Component {
                 </table>
             </Paper>
         );
+    }
+
+    filteredPlaylist() {
+        return this.props.playlist;
+    }
+
+    rowClick(song) {
+        return () => {
+            window.mpd.command("play " + song.Pos);
+        };
     }
 
     header(key, label) {
