@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import Radium from 'radium';
 import Paper from 'components/Paper.jsx';
 import MaterialIcon from 'components/MaterialIcon.jsx';
+import TextField from 'material-ui/TextField';
 import Helper from './Helper';
 
 const styles = {
@@ -40,10 +41,26 @@ const styles = {
     'playing': {
         lineHeight: "18px",
         fontSize: "18px"
+    },
+    'searchWrapper': {
+        padding: "20px"
+    },
+    'searchField': {
+        width: "100%"
     }
 };
 
+var searchTimeout;
 class Playlist extends Component {
+    doSearch = (evt, text) => {
+        if (searchTimeout) clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            window.mpd.command("playlistsearch any \"" + text.toLowerCase() + "\"", (playlist) => {
+                this.props.updatePlaylist(playlist);
+            });
+        }, 500);
+    }
+
     classes() {
         return {
             'default': styles
@@ -52,7 +69,14 @@ class Playlist extends Component {
 
     render() {
         return (
-            <Paper style={this.styles().paper}>
+            <Paper is="paper">
+                <div is="searchWrapper">
+                    <TextField 
+                        is="searchField"
+                        hintText="Search here"
+                        onChange={this.doSearch} />
+                </div>
+                <br />
                 <table>
                     <tbody>
                         <tr>
@@ -103,8 +127,8 @@ class Playlist extends Component {
         if (this.props.song.Id == song.Id) {
             var icon = this.props.status.state == "play" ? "play_arrow" : "pause";
             return <MaterialIcon
-                    style={this.styles().playing}
-                    icon={icon} />;
+                is="playing"
+                icon={icon} />;
         } else {
             return "";
         }
@@ -112,4 +136,13 @@ class Playlist extends Component {
 }
 
 const mapStateToProps = (state) => _.assign({}, state);
-export default connect(mapStateToProps)(Radium(Playlist));
+const mapDispatchToProps = (dispatch) => ({
+    updatePlaylist: (playlist) => {
+        dispatch({
+            type: "UPDATE_PLAYLIST",
+            playlist: _.slice(playlist, 0, 20)
+        });
+    }
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Radium(Playlist));

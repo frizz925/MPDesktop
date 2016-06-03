@@ -1,6 +1,6 @@
 var _ = require('lodash');
 
-module.exports = {
+const handlers = {
     default: function(parts) {
         var resp = {};
         _.each(parseResponse(parts), function(part) {
@@ -15,6 +15,8 @@ module.exports = {
         return arrayParse(parts, "outputenabled");
     }
 };
+
+handlers.playlistsearch = handlers.playlistinfo;
 
 function arrayParse(parts, endKey) {
     var resp = [];
@@ -41,3 +43,4 @@ function parseResponse(parts) {
     return arr;
 }
 
+module.exports = handlers;

@@ -64,11 +64,17 @@ function updateCover(song) {
         url: LASTFM_API_URL + "?" + $.param(query),
         dataType: "json",
         success: (data) => {
-            var image_url = data.album.image[3]["#text"];
-            store.dispatch({
-                type: 'UPDATE_COVER',
-                image_url
-            });
+            var image_url = "public/images/music-icon-faded.png";
+            try {
+                image_url = data.album.image[3]["#text"];
+            } catch (e) {
+                // do nothing lel
+            } finally {
+                store.dispatch({
+                    type: 'UPDATE_COVER',
+                    image_url
+                });
+            }
         },
         error: console.error
     });
