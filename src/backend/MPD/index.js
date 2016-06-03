@@ -9,15 +9,52 @@ const FLAG_DEFAULT = "default";
 module.exports = function() {
     const self = this;
 
-    /* public attribute definitions */
-    self.server = {};
-
     /* queue definition */
     const commandQueue = [];
+
     /* global variables declaration */
     var client, initCallback;
     var flag = FLAG_INIT;
     var buffer = "";
+
+    /* public attribute definitions */
+    self.server = {};
+
+    /* public function definitions */
+    self.connect = function(host, port, callback) {
+        initCallback = callback;
+        client = new net.Socket();
+        client.connect(port, host);
+        client.on('data', onData);
+        client.on('error', console.error);
+        client.on('close', function() {
+            console.log("Disconnected");
+        });
+        return self;
+    };
+
+    self.on = function(name, callback) {
+        client.on(name, callback);
+        return self;
+    };
+
+    self.sendCommand = function(command, callback) {
+        commandQueue.push({
+            command, callback
+        });
+        client.write(command + "\r\n");
+        return self;
+    };
+
+    self.disconnect = function() {
+        client.destroy();
+        return self;
+    };
+
+    /* response handler definitions */
+    const respHandler = {
+
+    };
 
     /* data handler definitions */
     const dataHandler = {
@@ -63,35 +100,4 @@ module.exports = function() {
             buffer = dataHandler[flag](buffer);
         }
     }
-
-    /* public function definitions */
-    self.connect = function(host, port, callback) {
-        initCallback = callback;
-        client = new net.Socket();
-        client.connect(port, host);
-        client.on('data', onData);
-        client.on('error', console.error);
-        client.on('close', function() {
-            console.log("Disconnected");
-        });
-        return self;
-    };
-
-    self.on = function(name, callback) {
-        client.on(name, callback);
-        return self;
-    };
-
-    self.sendCommand = function(command, callback) {
-        commandQueue.push({
-            command, callback
-        });
-        client.write(command + "\r\n");
-        return self;
-    };
-
-    self.disconnect = function() {
-        client.destroy();
-        return self;
-    };
 }
