@@ -8,12 +8,14 @@ const FLAG_DEFAULT = "default";
 
 module.exports = function() {
     const self = this;
-    /* MPD server info */
-    const server = {};
+
+    /* public attribute definitions */
+    self.server = {};
+
     /* queue definition */
     const commandQueue = [];
     /* global variables declaration */
-    var client; 
+    var client, initCallback;
     var flag = FLAG_INIT;
     var buffer = "";
 
@@ -21,12 +23,17 @@ module.exports = function() {
     const dataHandler = {
         init: function(buffer) {
             var parts = buffer.match(/OK MPD (\d+)\.(\d+)\.(\d+)/);
-            var resp = parts.shift();
-            server.version = _.map(parts, function(part) {
+            var text = parts.shift();
+            var version = _.map(parts, function(part) {
                 return Number(part);
             });
+
             flag = FLAG_DEFAULT;
-            return buffer.substring(buffer.indexOf(resp) + resp.length);
+            self.server.version = version;
+
+            initCallback(version);
+
+            return buffer.substring(buffer.indexOf(text) + text.length);
         },
         default: function(buffer) {
             var parts = buffer.match(/(.+): (.+)/gi);
@@ -38,8 +45,9 @@ module.exports = function() {
                 if (!isNaN(value)) value = Number(value);
                 resp[key] = value;
             });
-            commandQueue.shift().callback(resp);
-            return buffer.substring(buffer.indexOf("OK\r\n") + 4);
+            commandQueue.shift().callback(resp, buffer);
+            buffer = buffer.substring(buffer.indexOf("OK") + 2);
+            return buffer;
         }
     };
 
@@ -47,17 +55,20 @@ module.exports = function() {
     function onData(data) {
         buffer += data;
         if (buffer.indexOf("OK") >= 0) {
+            /*
+            console.log("======= START =========");
+            console.log(buffer);
+            console.log("======= FINISH =========");
+            */
             buffer = dataHandler[flag](buffer);
         }
     }
 
-
     /* public function definitions */
     self.connect = function(host, port, callback) {
+        initCallback = callback;
         client = new net.Socket();
-        client.connect(port, host, callback || function() {
-            console.log("Connected");
-        });
+        client.connect(port, host);
         client.on('data', onData);
         client.on('error', console.error);
         client.on('close', function() {
