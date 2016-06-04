@@ -16,18 +16,14 @@ import Playlist from 'route_components/Playlist.jsx';
 import Output from 'route_components/Output.jsx';
 import Settings from 'route_components/Settings.jsx';
 
-import actions from './actions';
+import reducers from './reducers';
+import * as actions from 'actions';
 
 injectTapEventPlugin();
 
 const MPD = window.backend;
 const LASTFM_API_KEY = "1dfdaeab9e98333ba63171987cff9352";
 const LASTFM_API_URL = "http://ws.audioscrobbler.com/2.0/";
-
-const settings = {
-    host: "raspberrypi.lan",
-    port: 6600
-};
 
 const muiTheme = getMuiTheme({
     palette: {
@@ -36,20 +32,42 @@ const muiTheme = getMuiTheme({
     }
 });
 
-const store = createStore(actions, {
+var settings = localStorage.getItem("settings");
+if (settings) {
+    settings = JSON.parse(settings);
+} else {
+    settings = {
+        host: "localhost",
+        port: 6600
+    };
+}
+
+var mpd;
+var initialState = {
     song: {},
     status: {},
-    playlist: [],
     playback: {
         image_url: "",
         current: 0,
         duration: -1
     },
-    outputs: [],
-    settings
-});
+    settings,
 
-var mpd;
+    playlist: [],
+    outputs: [],
+    search: ""
+};
+
+const store = createStore(reducers, initialState);
+
+var previousState = {};
+store.subscribe(() => {
+    var state = store.getState();
+    if (previousState.search !== state.search) {
+        previousState.search = state.search;
+        fetchPlaylist();
+    }
+});
 
 function updateCover(song) {
     var query = {
@@ -70,10 +88,7 @@ function updateCover(song) {
             } catch (e) {
                 // do nothing lel
             } finally {
-                store.dispatch({
-                    type: 'UPDATE_COVER',
-                    image_url
-                });
+                store.dispatch(actions.updateCover(image_url));
             }
         },
         error: console.error
@@ -81,22 +96,24 @@ function updateCover(song) {
 }
 
 function fetchPlaylist(song) {
-    var start = song ? song.Pos - 10 : 0;
-    var end = song ? song.Pos + 10 : 20;
-    mpd.command("playlistinfo " + start + ":" + end, function(playlist) {
-        store.dispatch({
-            type: 'UPDATE_PLAYLIST',
-            playlist
-        });
+    var state = store.getState();
+    var command;
+    if (_.isEmpty(state.search)) {
+        var start = song ? song.Pos - 10 : 0;
+        var end = song ? song.Pos + 10 : 20;
+        command = "playlistinfo " + start + ":" + end;
+    } else {
+        command = "playlistsearch any \"" + state.search + "\"";
+    }
+
+    mpd.command(command, function(playlist) {
+        store.dispatch(actions.updatePlaylist(playlist));
     });
 }
 
 function updateStatus() {
     mpd.command("status", (status) => {
-        store.dispatch({
-            type: 'UPDATE_STATUS',
-            status
-        });
+        store.dispatch(actions.updateStatus(status));
     });
 }
 
@@ -105,10 +122,7 @@ function updateSong() {
         if (_.isEmpty(song)) return;
         var state = store.getState();
         var oldSong = state.song;
-        store.dispatch({
-            type: 'UPDATE_SONG',
-            song
-        });
+        store.dispatch(actions.updateSong(song));
 
         if (song.Id == oldSong.Id) return;
         fetchPlaylist(song);
@@ -118,10 +132,7 @@ function updateSong() {
 
 function updateOutput() {
     mpd.command("outputs", (outputs) => {
-        store.dispatch({
-            type: 'UPDATE_OUTPUT',
-            outputs
-        });
+        store.dispatch(actions.updateOutput(outputs));
     });
 }
 
@@ -183,8 +194,6 @@ render((
 setInterval(() => {
     var state = store.getState();
     if (state.status.state != "play") return;
-    store.dispatch({
-        type: 'INCREMENT_SEEKER'
-    });
+    store.dispatch(actions.incrementSeeker());
 }, 1000);
 

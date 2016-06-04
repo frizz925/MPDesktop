@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 import Paper from 'components/Paper.jsx';
+import { updateSettings } from 'actions';
 
 const settings = {};
 
@@ -60,10 +61,7 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch, props) => {
     return {
         save: () => {
-            dispatch({
-                type: 'UPDATE_SETTINGS',
-                settings
-            });
+            dispatch(updateSettings(settings));
 
             if (window.mpd.connected) {
                 window.mpd.disconnect();

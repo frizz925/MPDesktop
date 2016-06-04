@@ -9,7 +9,7 @@
     "server": "node server.js",
     "watch": "webpack -w",
     "production": "cross-env NODE_ENV=production webpack",
-    "build-win32": "electron-packager . --platform=win32 --arch=ia32 --out=build --overwrite"
+    "build-win32": "electron-packager . --platform=win32 --arch=ia32 --out=build --overwrite --prune"
   },
   "repository": {
     "type": "git",

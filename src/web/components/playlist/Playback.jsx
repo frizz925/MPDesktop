@@ -6,7 +6,7 @@ import Paper from 'components/Paper.jsx';
 import Slider from 'material-ui/Slider';
 import MaterialIcon from 'components/MaterialIcon.jsx';
 import CheckBox from 'material-ui/Checkbox';
-import Helper from './Helper';
+import { formattedTime } from 'helpers';
 import { grey400 } from 'material-ui/styles/colors';
 
 class Playback extends Component {
@@ -33,7 +33,7 @@ class Playback extends Component {
         var time = playback.current;
         var maxTime = song.Time || 1000;
         var progress = time / maxTime * 1000;
-        var duration = playback.duration > 0 ? Helper.formattedTime(playback.duration) : "--:--";
+        var duration = playback.duration > 0 ? formattedTime(playback.duration) : "--:--";
 
         return (
             <Paper is="paper">
@@ -46,7 +46,7 @@ class Playback extends Component {
                             <div style={styles.info.album}>{song.Album}</div>
                         </div>
                         <div style={styles.seek.base}>
-                            <div style={styles.seek.current}>{Helper.formattedTime(time)}</div>
+                            <div style={styles.seek.current}>{formattedTime(time)}</div>
                             <div style={styles.seek.duration}>{duration}</div>
                             <div is="cls"></div>
                             <Slider 

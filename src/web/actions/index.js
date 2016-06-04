@@ -1,39 +1,34 @@
-module.exports = (state, action) => {
-    switch (action.type) {
-        case 'UPDATE_STATUS':
-            state.status = action.status;
-            state.playback.current = action.status.time ? Number(action.status.time.match(/(\d+):/)[1]) : 0;
-            break;
-        case 'UPDATE_PLAYLIST':
-            state.playlist = action.playlist;
-            break;
-        case 'UPDATE_SETTINGS':
-            state.settings = action.settings;
-            console.log(state);
-            break;
-        case 'UPDATE_SONG':
-            state.song = action.song;
-            state.playback.duration = action.song.Time;
-            break;
-        case 'UPDATE_PLAYBACK':
-            state.playback = action.playback;
-            break;
-        case 'UPDATE_OUTPUT':
-            state.outputs = action.outputs;
-            break;
-        case 'INCREMENT_SEEKER':
-            if (state.playback.current >= state.playback.duration) return state;
-            state.playback = _.assign({}, state.playback, {
-                current: ++state.playback.current,
-            });
-            break;
-        case 'UPDATE_COVER':
-            state.playback = _.assign({}, state.playback, {
-                image_url: action.image_url
-            });
-            break;
-        default:
-            return state;
-    }
-    return _.assign({}, state);
-};
+export const UPDATE_SEARCH = 'UPDATE_SEARCH';
+export const UPDATE_COVER = 'UPDATE_COVER';
+export const UPDATE_SONG = 'UPDATE_SONG';
+export const UPDATE_PLAYBACK = 'UPDATE_PLAYBACK';
+export const UPDATE_SETTINGS = 'UPDATE_SETTINGS';
+export const UPDATE_STATUS = 'UPDATE_STATUS';
+export const UPDATE_OUTPUT = 'UPDATE_OUTPUT';
+export const UPDATE_PLAYLIST = 'UPDATE_PLAYLIST';
+export const INCREMENT_SEEKER = 'INCREMENT_SEEKER';
+
+function generate(type, name) {
+    return (state) => {
+        const action = {};
+        action.type = type;
+        action[name] = state;
+        return action;
+    };
+}
+
+export const updateSearch = generate(UPDATE_SEARCH, 'search');
+export const updateSong = generate(UPDATE_SONG, 'song');
+export const updatePlayback = generate(UPDATE_PLAYBACK, 'playback');
+export const updateSettings = generate(UPDATE_SETTINGS, 'settings');
+export const updateStatus = generate(UPDATE_STATUS, 'status');
+export const updatePlaylist = generate(UPDATE_PLAYLIST, 'playlist');
+
+export const updateCover = generate(UPDATE_COVER, 'image_url');
+export const updateOutput = generate(UPDATE_OUTPUT, 'outputs');
+
+export function incrementSeeker() {
+    return {
+        type: INCREMENT_SEEKER
+    };
+}

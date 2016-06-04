@@ -1,70 +1,37 @@
 import React from 'react';
+import Radium from 'radium';
 import { Component } from 'reactcss';
 import { connect } from 'react-redux';
-import Radium from 'radium';
 import Paper from 'components/Paper.jsx';
 import MaterialIcon from 'components/MaterialIcon.jsx';
 import TextField from 'material-ui/TextField';
-import Helper from './Helper';
 
-const styles = {
-    'paper': {
-        padding: "20px 0"
-    },
-    'tr': {
-        'base': {
-            cursor: "pointer",
-        }
-    },
-    'th': {
-        'playing': {
-            width: "20px"
-        },
-        'track': {
-            width: "20px"
-        },
-        'duration': {
-            textAlign: "right"
-        }
-    },
-    'td': {
-        'playing': {
-            textAlign: "center"
-        },
-        'track': {
-            textAlign: "right"
-        },
-        'duration': {
-            textAlign: "right"
-        }
-    },
-    'playing': {
-        lineHeight: "18px",
-        fontSize: "18px"
-    },
-    'searchWrapper': {
-        padding: "20px"
-    },
-    'searchField': {
-        width: "100%"
-    }
-};
+import { formattedTime, normalizeTrackNumber } from 'helpers';
+import { updateSearch } from 'actions';
 
-var searchTimeout;
 class Playlist extends Component {
-    doSearch = (evt, text) => {
-        if (searchTimeout) clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => {
-            window.mpd.command("playlistsearch any \"" + text.toLowerCase() + "\"", (playlist) => {
-                this.props.updatePlaylist(playlist);
-            });
-        }, 500);
-    }
+    searchTimeout = null;
 
     classes() {
         return {
-            'default': styles
-        }
+            'default': {
+                'paper': {
+                    padding: "20px 0"
+                },
+                'searchWrapper': {
+                    padding: "20px"
+                },
+                'searchField': {
+                    width: "100%"
+                },
+                'tr': {
+                    cursor: "pointer",
+                },
+                'playing': {
+                    fontSize: "18px"
+                }
+            }
+        };
     }
 
     render() {
@@ -74,7 +41,7 @@ class Playlist extends Component {
                     <TextField 
                         is="searchField"
                         hintText="Search here"
-                        onChange={this.doSearch} />
+                        onChange={this.doSearch.bind(this)} />
                 </div>
                 <br />
                 <table>
@@ -88,19 +55,26 @@ class Playlist extends Component {
                             {this.header("duration", "Duration")}
                         </tr>
                         {_.map(this.filteredPlaylist(), (song, idx) => (
-                            <tr key={idx} style={this.styles().tr.base} onClick={this.rowClick(song)}>
+                            <tr key={idx} is="tr" onClick={this.rowClick(song)}>
                                 {this.cell("playing", this.playing(song))}
-                                {this.cell("track", song.Track)}
+                                {this.cell("track", normalizeTrackNumber(song.Track))}
                                 {this.cell("artist", song.Artist)}
                                 {this.cell("album", song.Album)}
                                 {this.cell("title", song.Title)}
-                                {this.cell("duration", Helper.formattedTime(song.Time))}
+                                {this.cell("duration", formattedTime(song.Time))}
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </Paper>
         );
+    }
+
+    doSearch(evt, text) {
+        if (this.searchTimeout) clearTimeout(this.searchTimeout);
+        this.searchTimeout = setTimeout(() => {
+            this.props.updateSearch(text);
+        }, 500);
     }
 
     filteredPlaylist() {
@@ -114,13 +88,13 @@ class Playlist extends Component {
     }
 
     header(key, label) {
-        var style = this.styles().th[key] || {};
+        var style = styles.th[key] || {};
         return <th key={key} style={style}>{label}</th>;
     }
 
     cell(key, label) {
-        var style = this.styles().td[key] || {};
-        return <td key={key} style={style}>{label}</td>;
+        var style = styles.td[key] || {};
+        return <td key={key} style={[styles.td.base, style]}>{label}</td>;
     }
 
     playing(song) {
@@ -137,12 +111,38 @@ class Playlist extends Component {
 
 const mapStateToProps = (state) => _.assign({}, state);
 const mapDispatchToProps = (dispatch) => ({
-    updatePlaylist: (playlist) => {
-        dispatch({
-            type: "UPDATE_PLAYLIST",
-            playlist: _.slice(playlist, 0, 20)
-        });
+    updateSearch: (search) => {
+        dispatch(updateSearch(search));
     }
 });
+
+const styles = {
+    'th': {
+        'playing': {
+            width: "20px"
+        },
+        'track': {
+            width: "20px"
+        },
+        'duration': {
+            textAlign: "right"
+        }
+    },
+    'td': {
+        'base': {
+            verticalAlign: "middle"
+        },
+        'playing': {
+            textAlign: "center",
+            padding: 0
+        },
+        'track': {
+            textAlign: "right"
+        },
+        'duration': {
+            textAlign: "right"
+        }
+    }
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(Radium(Playlist));
