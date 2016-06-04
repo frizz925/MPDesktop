@@ -10,82 +10,91 @@ module.exports = function() {
     const self = this;
 
     /* queue definition */
-    const commandQueue = [];
-    var currentCommand;
+    const _commandQueue = [];
+    var _currentCommand;
 
     /* global variables declaration */
-    var client, initCallback, updateCallback;
-    var idling = false;
-    var flag = FLAG_INIT;
-    var buffer = "";
+    var _initCallback, _updateCallback;
+    var _idling = false;
+    var _flag = FLAG_INIT;
+    var _buffer = "";
 
     /* public attribute definitions */
     self.server = {};
 
     /* public function definitions */
     self.connect = function(host, port, callbacks) {
-        initCallback = callbacks.init;
-        updateCallback = callbacks.update;
-        client = new net.Socket();
-        client.connect(port, host);
-        client.on('data', onData);
-        client.on('error', console.error);
-        client.on('close', function() {
+        _initCallback = callbacks.init;
+        _updateCallback = callbacks.update;
+
+        self.socket = new net.Socket();
+        self.socket.connect(port, host);
+        self.socket.on('data', onData);
+        self.socket.on('error', console.error);
+        self.socket.on('close', function() {
             console.log("Disconnected");
         });
+
         return self;
     };
 
     self.on = function(name, callback) {
-        client.on(name, callback);
+        self.socket.on(name, callback);
+        return self;
+    };
+
+    self.write = function(text) {
+        self.socket.write(text);
         return self;
     };
 
     self.idle = function() {
-        idling = true;
+        _idling = true;
         self.command("idle", function(resp, buffer) {
-            idling = false;
-            updateCallback(resp, buffer);
+            _idling = false;
+            _updateCallback(resp, buffer);
         });
         return self;
     };
 
     self.unidle = function() {
-        client.write("noidle\r\n");
+        self.write("noidle\r\n");
+        return self;
     };
 
     self.command = function(command, callback) {
         var cmd = { command, callback };
-        if (idling) self.unidle();
-        if (!currentCommand) {
-            currentCommand = cmd;
+        if (_idling) self.unidle();
+        if (!_currentCommand) {
+            _currentCommand = cmd;
             executeCurrentCommand();
         } else {
-            commandQueue.push(cmd);
+            _commandQueue.push(cmd);
         }
         return self;
     };
 
     self.disconnect = function() {
-        client.destroy();
+        self.socket.destroy();
         return self;
     };
 
     /* command queueing function definitions */
     function commandInQueue() {
         //if (currentCommand) throw "Can't send command when there's already an ongoing command!";
-        if (currentCommand) return;
-        if (commandQueue.length <= 0) {
-            if (!idling) self.idle();
+        if (_currentCommand) return;
+        if (_commandQueue.length <= 0) {
+            if (!_idling) self.idle();
             return;
         }
-        currentCommand = commandQueue.shift();
+        _currentCommand = _commandQueue.shift();
         executeCurrentCommand();
     }
 
     function executeCurrentCommand() {
-        if (!currentCommand) throw "No pending command to execute!";
-        client.write(currentCommand.command + "\r\n");
+        //if (!_currentCommand) throw "No pending command to execute!";
+        if (!_currentCommand) return;
+        self.write(_currentCommand.command + "\r\n");
     }
 
     /* data handler definitions */
@@ -96,40 +105,41 @@ module.exports = function() {
             var version = _.map(parts, function(part) {
                 return Number(part);
             });
-            flag = FLAG_DEFAULT;
+
+            _flag = FLAG_DEFAULT;
             self.server.version = version;
 
-            initCallback(version);
+            _buffer = buffer.substring(buffer.indexOf(text) + text.length);
+            _initCallback(version);
 
-            buffer = buffer.substring(buffer.indexOf(text) + text.length);
-            return buffer;
+            return _buffer;
         },
         default: function(buffer) {
-            var command = currentCommand;
+            var command = _currentCommand;
             var cmd = command.command.match(/^([a-z]+)/)[1];
             var parts = buffer.match(/(.+): (.+)/gi);
             var handler = respHandler[cmd] || respHandler.default;
             var resp = handler(parts);
 
+            _buffer = buffer.substring(buffer.indexOf("OK") + 2);
+            _currentCommand = null;
             if (command.callback)
                 command.callback(resp, buffer);
 
-            buffer = buffer.substring(buffer.indexOf("OK") + 2);
-            currentCommand = null;
-            return buffer;
+            return _buffer;
         }
     };
 
     /* callback function definitions */
     function onData(data) {
-        buffer += data;
-        if (buffer.indexOf("OK") >= 0) {
+        _buffer += data;
+        if (_buffer.indexOf("OK") >= 0) {
             /*
             console.log("======= START =========");
-            console.log(buffer);
+            console.log(_buffer);
             console.log("======= FINISH =========");
             */
-            buffer = dataHandler[flag](buffer);
+            _buffer = dataHandler[_flag](_buffer);
             commandInQueue();
         }
     }
