@@ -5,9 +5,10 @@
   "description": "Desktop MPD client made using Electron",
   "main": "main.js",
   "scripts": {
-    "start": "electron main.js",
+    "start": "cross-env NODE_ENV=development electron main.js",
     "server": "node server.js",
-    "production": "cross-env NODE_ENV=production webpack --config webpack.config.js"
+    "watch": "webpack -w",
+    "production": "cross-env NODE_ENV=production webpack"
   },
   "repository": {
     "type": "git",
