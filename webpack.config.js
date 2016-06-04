@@ -55,12 +55,23 @@ var config = {
 };
 
 if (process.env.NODE_ENV === "production") {
-    config.devtool = "cheap-source-map";
-    config.plugins.push(new webpack.optimize.UglifyJsPlugin({
-        compress: {
-            warnings: false
-        }
-    }));
+    config.devtool = "cheap-module-source-map";
+    config.plugins.push(
+        new webpack.optimize.UglifyJsPlugin({
+            compress: {
+               warnings: false
+            }
+        }),
+        new webpack.DefinePlugin({
+            'process.env.NODE_ENV': '"production"'
+        })
+    );
+} else {
+    config.plugins.push(
+        new webpack.DefinePlugin({
+            'process.env.NODE_ENV': '"development"'
+        })
+    );
 }
 
 module.exports = config;
