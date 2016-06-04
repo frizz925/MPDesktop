@@ -99,8 +99,9 @@ function fetchPlaylist(song) {
     var state = store.getState();
     var command;
     if (_.isEmpty(state.search)) {
-        var start = song ? song.Pos - 10 : 0;
-        var end = song ? song.Pos + 10 : 20;
+        song = song || state.song;
+        var start = song.Pos ? song.Pos - 10 : 0;
+        var end = song.Pos ? song.Pos + 10 : 20;
         command = "playlistinfo " + start + ":" + end;
     } else {
         command = "playlistsearch any \"" + state.search + "\"";
@@ -119,13 +120,10 @@ function updateStatus() {
 
 function updateSong() {
     mpd.command("currentsong", (song) => {
-        if (_.isEmpty(song)) return;
-        var state = store.getState();
-        var oldSong = state.song;
-        store.dispatch(actions.updateSong(song));
-
-        if (song.Id == oldSong.Id) return;
         fetchPlaylist(song);
+
+        if (_.isEmpty(song)) return;
+        store.dispatch(actions.updateSong(song));
         updateCover(song);
     });
 }

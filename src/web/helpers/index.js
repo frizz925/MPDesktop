@@ -15,5 +15,5 @@ export function formattedTime(time) {
 export function normalizeTrackNumber(trackno) {
     if (!trackno) return "";
     if (Number.isInteger(trackno)) return zeroPadding(trackno, 2);
-    return zeroPadding(trackno.match(/\d+/)[0], 2);
+    return zeroPadding(Number.parseInt(trackno.match(/\d+/)[0]), 2);
 }
