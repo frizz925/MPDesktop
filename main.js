@@ -1,3 +1,4 @@
+"use strict";
 var electron = require('electron');
 var lodash = require('lodash');
 const app = electron.app;

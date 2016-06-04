@@ -1,3 +1,4 @@
+"use strict";
 var _ = require('lodash');
 var net = require('net');
 var respHandler = require('./responseHandler');

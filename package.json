@@ -1,5 +1,6 @@
 {
   "name": "mpdesktop",
+  "productName": "MPDesktop",
   "version": "1.0.0",
   "description": "Desktop MPD client made using Electron",
   "main": "main.js",
