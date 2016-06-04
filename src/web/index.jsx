@@ -125,11 +125,16 @@ function updateOutput() {
     });
 }
 
-function connectMPD() {
+const connectMPD = window.connectMPD = function() {
+    console.log("Connecting...");
     var settings = store.getState().settings;
     mpd = window.mpd = new MPD();
+    mpd.connected = false;
     mpd.connect(settings.host, settings.port, {
         init: () => {
+            console.log("Connected");
+            mpd.connected = true;
+            fetchPlaylist();
             updateStatus();
             updateSong();
             updateOutput();
@@ -151,7 +156,12 @@ function connectMPD() {
             }
         }
     });
-    mpd.on('close', connectMPD);
+    mpd.on('close', function() {
+        console.log("Disconnected");
+        mpd.connected = false;
+        console.log("Reconnecting in 3 seconds");
+        setTimeout(connectMPD, 3000);
+    });
 }
 
 connectMPD();

@@ -6,7 +6,7 @@
   "scripts": {
     "start": "electron main.js",
     "server": "node server.js",
-    "production": "cross-env NODE_ENV=production webpack"
+    "production": "cross-env NODE_ENV=production webpack --config webpack.config.js"
   },
   "repository": {
     "type": "git",

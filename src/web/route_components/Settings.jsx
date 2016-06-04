@@ -64,7 +64,12 @@ const mapDispatchToProps = (dispatch, props) => {
                 type: 'UPDATE_SETTINGS',
                 settings
             });
-            window.mpd.disconnect();
+
+            if (window.mpd.connected) {
+                window.mpd.disconnect();
+            } else {
+                window.connectMPD();
+            }
         }
     };
 };
