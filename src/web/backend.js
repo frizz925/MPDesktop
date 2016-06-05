@@ -8,21 +8,23 @@ var settings = localStorage.getItem("settings");
 if (settings) {
     settings = JSON.parse(settings);
 } else {
-    settings = {
-        host: "localhost",
-        port: 6600,
-        cover: {
-            enabled: false,
-            port: 80,
-            path: "/cover-art",
-            name: "Cover.jpg"
-        },
-        notification: true,
-        streaming: {
-            port: 8000
-        }
-    };
+    settings = {};
 }
+
+settings = _.assign({
+    host: "localhost",
+    port: 6600,
+    cover: {
+        enabled: false,
+        port: 80,
+        path: "/cover-art",
+        name: "Cover.jpg"
+    },
+    notification: true,
+    streaming: {
+        port: 8000
+    }
+}, settings);
 
 const placeholderCover = "public/images/music-icon-faded.png";
 

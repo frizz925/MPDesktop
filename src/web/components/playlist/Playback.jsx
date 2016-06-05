@@ -55,7 +55,7 @@ class Playback extends Component {
                             <div style={styles.seek.current}>{formattedTime(time)}</div>
                             <div style={styles.seek.duration}>{duration}</div>
                             <div is="cls"></div>
-                            <Slider 
+                            <Slider
                                 min={0}
                                 max={1000}
                                 style={styles.seek.slider}
@@ -77,9 +77,9 @@ class Playback extends Component {
                             <div style={styles.volume.iconWrapper}>
                                 <MaterialIcon style={styles.volume.icon} icon="volume_up" />
                             </div>
-                            <Slider 
+                            <Slider
                                 disabled={!this.stateVolume()}
-                                style={styles.volume.slider} 
+                                style={styles.volume.slider}
                                 min={0}
                                 max={100}
                                 defaultValue={100}
@@ -169,10 +169,10 @@ class Playback extends Component {
         if (state === undefined) state = true;
         if (state) {
             var style = styles.control[icon] || {};
-            return <MaterialIcon 
-                key={icon} 
+            return <MaterialIcon
+                key={icon}
                 onClick={this.buttonClick(command)}
-                style={[styles.control.icon, style]} 
+                style={[styles.control.icon, style]}
                 icon={icon} />;
         } else {
             return "";
@@ -187,8 +187,8 @@ class Playback extends Component {
             this.buttonClick(command + " " + (checked ? 0 : 1)) :
             command;
 
-        return <CheckBox 
-            style={styles.checkbox.input} 
+        return <CheckBox
+            style={styles.checkbox.input}
             label={label}
             defaultChecked={checked}
             onCheck={onCheck} />;
@@ -211,7 +211,8 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => ({
     updateSeek: (seek) => dispatch(updateSeek(seek)),
     updateVolume: (volume) => dispatch(updateVolume(volume)),
-    setStreaming: (state) => dispatch(setStreaming(state))       
+    setStreaming: (state) => dispatch(setStreaming(state)),
+    setStreamingVolume: (volume) => dispatch(setStreaming(volume))
 });
 
 const styles = {

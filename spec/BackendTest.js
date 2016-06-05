@@ -1,8 +1,8 @@
 var assert = require('chai').assert;
 var MPD = require('../src/backend/MPD');
 
-const HOST = "raspberrypi.lan";
-const PORT = 6600;
+const host = "raspberrypi.lan";
+const port = 6600;
 
 function commandAndPrint(mpd, cmd, done) {
     mpd.command(cmd, function(resp) {
@@ -16,7 +16,8 @@ describe("MPD Test", function() {
     var success = false;
 
     before(function(done) {
-        mpd.connect(HOST, PORT, {
+        mpd.init({ host, port });
+        mpd.connect({
             init: function(version) {
                 success = true;
                 console.log(version);
