@@ -4,10 +4,6 @@ var net = require('net');
 var respHandler = require('./_responseHandler');
 var CoverFetcher = require('./_coverFetcher');
 
-/* flag definition */
-const FLAG_INIT = "init";
-const FLAG_DEFAULT = "default";
-
 module.exports = function() {
     const self = this;
 
@@ -19,7 +15,6 @@ module.exports = function() {
     var _settings, _initCallback, _updateCallback;
     var _coverFetcher;
     var _idling = false;
-    var _flag = FLAG_INIT;
     var _buffer = "";
     var _socketListeners = {};
 
@@ -140,7 +135,6 @@ module.exports = function() {
                 return Number(part);
             });
 
-            _flag = FLAG_DEFAULT;
             self.server.version = version;
 
             _buffer = buffer.substring(buffer.indexOf(text) + text.length);
@@ -158,10 +152,11 @@ module.exports = function() {
             var handler = respHandler[cmd] || respHandler.default;
             var resp = handler(parts);
 
-            _buffer = buffer.substring(buffer.indexOf("OK") + 2);
+            _buffer = buffer.substring(buffer.indexOf("OK\n") + 3);
             _currentCommand = null;
-            if (command.callback)
+            if (command.callback) {
                 command.callback(resp, buffer);
+            }
 
             return _buffer;
         }
@@ -170,13 +165,20 @@ module.exports = function() {
     /* callback function definitions */
     function onData(data) {
         _buffer += data;
-        if (_buffer.indexOf("OK") >= 0) {
+        if (_buffer.match(/OK MPD/)) {
+            _buffer = dataHandler.init(_buffer);
+            commandInQueue();
+        } else if (_buffer.match(/OK\n/)) {
             /*
             console.log("======= START =========");
             console.log(_buffer);
             console.log("======= FINISH =========");
             */
-            _buffer = dataHandler[_flag](_buffer);
+            _buffer = dataHandler.default(_buffer);
+            commandInQueue();
+        } else if (_buffer.indexOf("ACK") >= 0) {
+            console.log(_buffer);
+            _currentCommand = null;
             commandInQueue();
         }
     }

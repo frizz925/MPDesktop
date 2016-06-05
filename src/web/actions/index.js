@@ -45,11 +45,5 @@ export const incrementSeeker = generate(INCREMENT_SEEKER);
 export const incrementUptime = generate(INCREMENT_UPTIME);
 export const incrementPlaytime = generate(INCREMENT_PLAYTIME);
 
-export function setStreaming(state) {
-    return {
-        type: SET_STREAMING,
-        state
-    };
-}
-
+export const setStreaming = generate(SET_STREAMING, 'state');
 export const setStreamingVolume = generate(SET_STREAMING_VOLUME, 'volume');

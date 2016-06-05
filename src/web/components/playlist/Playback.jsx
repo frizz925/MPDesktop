@@ -5,10 +5,10 @@ import Radium from 'radium';
 import Paper from 'components/Paper.jsx';
 import Slider from 'material-ui/Slider';
 import MaterialIcon from 'components/MaterialIcon.jsx';
-import CheckBox from 'material-ui/Checkbox';
+import Checkbox from 'material-ui/Checkbox';
 import { formattedTime } from 'helpers';
 import { grey400 } from 'material-ui/styles/colors';
-import { updateSeek, updateVolume, setStreaming } from 'actions';
+import { updateSeek, updateVolume, setStreaming, setStreamingVolume } from 'actions';
 
 class Playback extends Component {
     classes() {
@@ -87,9 +87,9 @@ class Playback extends Component {
                                 onChange={this.volumeChange.bind(this)}/>
                         </div>
                         <div style={styles.checkbox.base}>
-                            {this.checkBox("Single mode", "single", status.single)}
-                            {this.checkBox("Consume mode", "consume", status.consume)}
-                            {this.checkBox("Streaming", this.toggleStream.bind(this), streaming.enabled)}
+                            {this.checkbox("Single mode", "single", status.single == 1)}
+                            {this.checkbox("Consume mode", "consume", status.consume == 1)}
+                            {this.checkbox("Streaming", this.toggleStream.bind(this), streaming.enabled)}
                             <div is="cls"></div>
                         </div>
                     </div>
@@ -120,7 +120,7 @@ class Playback extends Component {
         var status = this.props.status;
         var streaming = this.props.streaming;
         if (streaming.enabled) {
-            this.props.setStreamingVolume(streaming.volume / 100);
+            this.props.setStreamingVolume(val / 100);
         } else {
             if (status.volume >= 0) {
                 this.props.updateVolume(val);
@@ -179,15 +179,14 @@ class Playback extends Component {
         }
     }
 
-    checkBox(label, command, checked) {
+    checkbox(label, command, checked) {
         if (checked === undefined) checked = false;
-        if (Number.isInteger(checked)) checked = checked == 1;
 
         var onCheck = _.isString(command) ?
             this.buttonClick(command + " " + (checked ? 0 : 1)) :
             command;
 
-        return <CheckBox
+        return <Checkbox
             style={styles.checkbox.input}
             label={label}
             defaultChecked={checked}
@@ -212,7 +211,7 @@ const mapDispatchToProps = (dispatch) => ({
     updateSeek: (seek) => dispatch(updateSeek(seek)),
     updateVolume: (volume) => dispatch(updateVolume(volume)),
     setStreaming: (state) => dispatch(setStreaming(state)),
-    setStreamingVolume: (volume) => dispatch(setStreaming(volume))
+    setStreamingVolume: (volume) => dispatch(setStreamingVolume(volume))
 });
 
 const styles = {

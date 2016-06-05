@@ -52,28 +52,6 @@ var previousState = _.assign({}, initialState);
 
 export const store = createStore(reducers, initialState);
 
-store.subscribe(() => {
-    var state = store.getState();
-    if (previousState.search !== state.search) {
-        previousState.search = state.search;
-        fetchPlaylist();
-    }
-
-    var streaming = state.streaming;
-    var status = state.status;
-    if (status.state == "play") {
-        if (streaming.enabled && window.audio.paused) {
-            window.audio.play();
-        } else if (!streaming.enabled && !window.audio.paused) {
-            window.audio.pause();
-        }
-    } else {
-        if (streaming.enabled && !window.audio.paused) {
-            window.audio.pause();
-        } 
-    }
-});
-
 function updateCover(song) {
     store.dispatch(actions.updateCover(placeholderCover));
     window.mpd.fetchCover(song, (cover) => {
@@ -142,7 +120,6 @@ export const connectMPD = window.connectMPD = function() {
     mpd.init(settings);
     mpd.connect({
         init: (version) => {
-            fetchPlaylist();
             updateStatus();
             updateSong();
             updateOutput();
@@ -150,6 +127,7 @@ export const connectMPD = window.connectMPD = function() {
         },
         update: (resp) => {
             if (_.isEmpty(resp)) return;
+            console.log(resp);
             switch (resp.changed) {
                 case "player":
                     updateStatus();
@@ -160,7 +138,7 @@ export const connectMPD = window.connectMPD = function() {
                     updateOutput();
                     break;
                 default:
-                    updateStatus();
+                    // do nothing
                     break;
             }
         }
@@ -174,3 +152,26 @@ export const connectMPD = window.connectMPD = function() {
 export function init() {
     connectMPD();
 }
+
+store.subscribe(() => {
+    var state = store.getState();
+    if (previousState.search !== state.search) {
+        previousState.search = state.search;
+        fetchPlaylist();
+    }
+
+    var streaming = state.streaming;
+    var status = state.status;
+    if (status.state == "play") {
+        if (streaming.enabled && window.audio.paused) {
+            window.audio.play();
+        } else if (!streaming.enabled && !window.audio.paused) {
+            window.audio.pause();
+        }
+    } else {
+        if (streaming.enabled && !window.audio.paused) {
+            window.audio.pause();
+        } 
+    }
+});
+

@@ -14,10 +14,10 @@ class Output extends Component {
             <Paper>
                 <h3>Output</h3>
                 <br />
-                {_.map(this.props.outputs, (output) => {
+                {_.map(this.props.outputs, (output, idx) => {
                     var checked = output.outputenabled == 1;
                     return <Checkbox 
-                        key={output.outputid}
+                        key={idx}
                         style={this.style}
                         label={output.outputname}
                         defaultChecked={checked}

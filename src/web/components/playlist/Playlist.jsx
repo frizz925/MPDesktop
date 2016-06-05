@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import Paper from 'components/Paper.jsx';
 import MaterialIcon from 'components/MaterialIcon.jsx';
 import TextField from 'material-ui/TextField';
+import RaisedButton from 'material-ui/RaisedButton';
 
 import { formattedTime, normalizeTrackNumber } from 'helpers';
 import { updateSearch } from 'actions';
@@ -19,10 +20,22 @@ class Playlist extends Component {
                     padding: "20px 0"
                 },
                 'searchWrapper': {
+                    display: "table",
                     padding: "20px"
+                },
+                'searchFieldWrapper': {
+                    display: "table-cell",
+                    verticalAlign: "middle",
+                    width: "100%"
                 },
                 'searchField': {
                     width: "100%"
+                },
+                'searchButtonWrapper': {
+                    display: "table-cell",
+                    verticalAlign: "bottom",
+                    paddingLeft: "20px",
+                    width: "30px"
                 },
                 'tr': {
                     cursor: "pointer",
@@ -38,10 +51,18 @@ class Playlist extends Component {
         return (
             <Paper is="paper">
                 <div is="searchWrapper">
-                    <TextField 
-                        is="searchField"
-                        hintText="Search here"
-                        onChange={this.doSearch.bind(this)} />
+                    <div is="searchFieldWrapper">
+                        <TextField 
+                            is="searchField"
+                            hintText="Search here"
+                            onChange={this.handleChange('search').bind(this)}
+                            defaultValue={this.props.search} />
+                    </div>
+                    <div is="searchButtonWrapper">
+                        <RaisedButton
+                            label="Search"
+                            onClick={this.doSearch.bind(this)} />
+                    </div>
                 </div>
                 <br />
                 <table>
@@ -70,11 +91,16 @@ class Playlist extends Component {
         );
     }
 
-    doSearch(evt, text) {
-        if (this.searchTimeout) clearTimeout(this.searchTimeout);
-        this.searchTimeout = setTimeout(() => {
-            this.props.updateSearch(text);
-        }, 500);
+    changes = {}
+
+    handleChange(name) {
+        return (evt, val) => {
+            this.changes[name] = val;
+        };
+    }
+
+    doSearch() {
+        this.props.updateSearch(this.changes.search);
     }
 
     filteredPlaylist() {
