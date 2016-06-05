@@ -137,6 +137,10 @@ export const connectMPD = window.connectMPD = function() {
                     updateStatus();
                     updateOutput();
                     break;
+                case "mixer":
+                case "options":
+                    updateStatus();
+                    break;
                 default:
                     // do nothing
                     break;
