@@ -26,7 +26,7 @@ class Settings extends Component {
                 <div is="block">
                     <h3>MPD</h3>
                     {this.textField("Host", "MPD server hostname", 'host')}
-                    {this.textField("Port", "MPD server port (default: 6600)", 'port')}
+                    {this.textField("Port", "MPD server port (default: 6600)", 'port', { cast: Number })}
                     {this.textField("Password", "MPD server password (optional)", 'password', { type: 'password' })}
                     {this.textField("Directory", "MPD server music directory (optional)", 'path')}
                 </div>
@@ -43,7 +43,8 @@ class Settings extends Component {
                         {
                             label: "Port",
                             hint: "Web server port (default: 80)",
-                            name: "cover.port"
+                            name: "cover.port",
+                            cast: Number
                         },
                         {
                             label: "Path",
@@ -61,7 +62,7 @@ class Settings extends Component {
                 <div is="block">
                     <h3>Streaming</h3>
                     {this.textField("Streaming host", "Streaming server hostname (optional)", "streaming.host")}
-                    {this.textField("Streaming port", "Streaming server port (default: 8000)", "streaming.port")}
+                    {this.textField("Streaming port", "Streaming server port (default: 8000)", "streaming.port", { cast: Number })}
                     {this.textField("Streaming URL suffix", "URL suffix on streaming server (optional)", "streaming.suffix")}
                 </div>
                 <div is="block">
@@ -99,7 +100,7 @@ class Settings extends Component {
                     floatingLabelText={label}
                     hintText={hint}
                     defaultValue={traverseObject(this.state, name)}
-                    onChange={this.handleChange(name, Number).bind(this)}
+                    onChange={this.handleChange(name, opt.cast).bind(this)}
                     {...opt} />
             </div>
         );
