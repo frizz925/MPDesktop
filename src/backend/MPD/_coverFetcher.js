@@ -2,7 +2,7 @@
 var _ = require('lodash');
 var axios = require('axios');
 var fsp = require('fs-promise');
-var path = require('path');
+var $path = require('path');
 
 const LASTFM_API_KEY = "1dfdaeab9e98333ba63171987cff9352";
 const LASTFM_API_URL = "http://ws.audioscrobbler.com/2.0/";
@@ -17,8 +17,8 @@ module.exports = function(settings) {
 
     function localFetch(song, callback, next) {
         if (settings.path) {
-            var parsed = path.parse(song.file);
-            var songDir = path.join(settings.path, parsed.dir);
+            var parsed = $path.parse(song.file);
+            var songDir = $path.join(settings.path, parsed.dir);
 
             var execCallback = function(coverPath) {
                 fsp.stat(coverPath)
@@ -36,9 +36,9 @@ module.exports = function(settings) {
                     var found = false;
 
                     _.each(files, function(file) {
-                        var parsed = path.parse(file);
+                        var parsed = $path.parse(file);
                         if (parsed.ext == ".jpg" && parsed.name.match(/cover/i)) {
-                            execCallback(path.join(songDir, file));
+                            execCallback($path.join(songDir, file));
                             found = true;
                             return false;
                         }
@@ -50,6 +50,26 @@ module.exports = function(settings) {
                 })
                 .catch(function(err) {
                     console.error(err);
+                    next(song, callback);
+                });
+        } else {
+            next(song, callback);
+        }
+    }
+
+    function serverFetch(song, callback, next) {
+        if (settings.cover.enabled) {
+            var dir = $path.parse(song.file).dir;
+            var host = settings.cover.host || settings.host;
+            var path = settings.cover.path || "";
+            var port = settings.cover.port || 80;
+            var name = settings.cover.name || "Cover.jpg";
+            var url = `http://${host}:${port}${path}/${dir}/${name}`;
+            axios.get(url)
+                .then(function() {
+                    callback(url);
+                })
+                .catch(function() {
                     next(song, callback);
                 });
         } else {
@@ -79,7 +99,7 @@ module.exports = function(settings) {
     }
 
     const _fetchers = [
-        localFetch, lastFMFetch
+        localFetch, serverFetch, lastFMFetch
     ];
 
     function fetch(song, callback) {

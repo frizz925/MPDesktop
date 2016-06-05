@@ -78,7 +78,7 @@ class Playlist extends Component {
     }
 
     filteredPlaylist() {
-        return this.props.playlist;
+        return this.props.playlist.slice(0, 20);
     }
 
     rowClick(song) {

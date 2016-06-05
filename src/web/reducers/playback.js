@@ -1,5 +1,5 @@
 import { 
-    UPDATE_PLAYBACK, UPDATE_STATUS, UPDATE_SONG, UPDATE_COVER, 
+    UPDATE_PLAYBACK, UPDATE_STATUS, UPDATE_SONG, UPDATE_COVER, UPDATE_SEEK,
     INCREMENT_SEEKER 
 } from 'actions';
 
@@ -16,6 +16,9 @@ export default function(state = {}, action) {
             break;
         case UPDATE_COVER:
             state.cover = action.cover;
+            break;
+        case UPDATE_SEEK:
+            state.current = action.seek;
             break;
         case INCREMENT_SEEKER:
             if (state.current >= state.duration) return state;

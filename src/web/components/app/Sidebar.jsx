@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import Drawer from 'material-ui/Drawer';
 import MenuItem from 'material-ui/MenuItem';
 import MaterialIcon from 'components/MaterialIcon.jsx';
+import routes from 'routes';
 
 export default class Sidebar extends Component {
     constructor(props) {
@@ -33,16 +34,14 @@ export default class Sidebar extends Component {
                 width={200}
                 open={this.state.open}
                 onRequestChange={this.handleChange}>
-                {this.menuItem("/", "playlist_play", "Playlist")}
-                {this.menuItem("/output", "volume_up", "Output")}
-                {this.menuItem("/settings", "settings", "Settings")}
+                {_.map(routes, (route) => this.menuItem(route.path, route.icon, route.label))}
             </Drawer>
         );
     }
 
     menuItem(path, icon, text) {
         return (
-            <Link to={path}>
+            <Link key={path} to={path}>
                 <MenuItem>
                     <MaterialIcon style={this.iconStyle} icon={icon} />
                     <span style={this.textStyle}>{text}</span>

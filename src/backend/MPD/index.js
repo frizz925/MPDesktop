@@ -144,7 +144,10 @@ module.exports = function() {
             self.server.version = version;
 
             _buffer = buffer.substring(buffer.indexOf(text) + text.length);
-            _initCallback(version);
+            self.command("stats", function(stats) {
+                _.assign(self.server, stats);
+                _initCallback(version);
+            });
 
             return _buffer;
         },

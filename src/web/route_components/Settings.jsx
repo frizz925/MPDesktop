@@ -1,56 +1,127 @@
-import React, { Component } from 'react';
+import React from 'react';
+import { Component } from 'reactcss';
 import { connect } from 'react-redux';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
+import Checkbox from 'material-ui/Checkbox';
 import Paper from 'components/Paper.jsx';
 import { updateSettings } from 'actions';
-
-const settings = {};
+import { traverseObject } from 'helpers';
 
 class Settings extends Component {
     constructor(props) {
         super(props);
-        _.assign(settings, props.settings);
+        this.state = _.assign({}, props.settings);
     }
 
-    textFieldStyle = {
-        marginRight: "20px"
+    classes() {
+        return {
+            'default': styles
+        };
     }
 
     render() {
         return (
             <Paper>
-                <h3>Settings</h3>
-                {this.textField("Host", "MPD server hostname or IP address", 'host')}
-                {this.textField("Port", "MPD server port (default: 6600)", 'port')}
-                {this.textField("Password", "MPD server password (optional)", 'password', 'password')}
-                {this.textField("Directory", "MPD music directory (optional)", 'path')}
-                <br />
-                <RaisedButton 
-                    label="Save"
-                    primary={true}
-                    onClick={this.props.save} />
+                <div is="block">
+                    <h3>MPD</h3>
+                    {this.textField("Host", "MPD server hostname", 'host')}
+                    {this.textField("Port", "MPD server port (default: 6600)", 'port')}
+                    {this.textField("Password", "MPD server password (optional)", 'password', { type: 'password' })}
+                    {this.textField("Directory", "MPD server music directory (optional)", 'path')}
+                </div>
+                <div is="block">
+                    <h3>Cover Art</h3>
+                    {this.groupedTextFields({
+                        disabled: !this.state.cover.enabled
+                    }, [
+                        {
+                            label: "Host",
+                            hint: "Web server hostname (optional)",
+                            name: "cover.host"
+                        },
+                        {
+                            label: "Port",
+                            hint: "Web server port (default: 80)",
+                            name: "cover.port"
+                        },
+                        {
+                            label: "Path",
+                            hint: "Path on web server (default: '/cover-art')",
+                            name: "cover.path"
+                        },
+                        {
+                            label: "Filename",
+                            hint: "Cover filename (default: 'Cover.jpg')",
+                            name: "cover.name"
+                        }
+                    ])}
+                    {this.checkbox("Use web server", "cover.enabled")}
+                </div>
+                <div is="block">
+                    <h3>Streaming</h3>
+                    {this.textField("Streaming host", "Streaming server hostname (optional)", "streaming.host")}
+                    {this.textField("Streaming port", "Streaming server port (default: 8000)", "streaming.port")}
+                    {this.textField("Streaming URL suffix", "URL suffix on streaming server (optional)", "streaming.suffix")}
+                </div>
+                <div is="block">
+                    <h3>Notification</h3>
+                    {this.checkbox("Show notification", "notification")}
+                </div>
+                <div>
+                    <RaisedButton 
+                        label="Save"
+                        primary={true}
+                        onClick={this.save.bind(this)} />
+                </div>
             </Paper>
         );
     }
 
-    textField(label, hint, name, type) {
+    save() {
+        this.props.saveSettings(this.state);
+    }
+
+    groupedTextFields(opt = {}, fields) {
         return (
             <div>
-                <TextField
-                    style={this.textFieldStyle}
-                    floatingLabelText={label}
-                    hintText={hint}
-                    defaultValue={this.props.settings[name]}
-                    onChange={this.handleChange(name).bind(this)}
-                    type={type || "text"} />
+                {_.map(fields, (field) => this.textField(field.label, field.hint, field.name, opt))}
             </div>
         );
     }
 
-    handleChange(name) {
+    textField(label, hint, name, opt = {}) {
+        opt.type = opt.type || "text";
+        return (
+            <div key={name}>
+                <TextField
+                    is="textField"
+                    floatingLabelText={label}
+                    hintText={hint}
+                    defaultValue={traverseObject(this.state, name)}
+                    onChange={this.handleChange(name, Number).bind(this)}
+                    {...opt} />
+            </div>
+        );
+    }
+
+    checkbox(label, name) {
+        return <Checkbox
+            is="checkbox"
+            key={name}
+            label={label}
+            defaultChecked={traverseObject(this.state, name)}
+            onCheck={this.handleChange(name, Boolean).bind(this)} />
+    }
+
+    handleChange(query, caster) {
         return (evt, val) => {
-            settings[name] = val;
+            var state = _.assign({}, this.state);
+            if (caster) {
+                if (!isNaN(val)) val = caster(val);
+            }
+            traverseObject(state, query, val);
+            this.setState(state);
         };
     }
 }
@@ -61,7 +132,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch, props) => {
     return {
-        save: () => {
+        saveSettings: (settings) => {
             dispatch(updateSettings(settings));
 
             if (window.mpd.connected) {
@@ -71,6 +142,25 @@ const mapDispatchToProps = (dispatch, props) => {
             }
         }
     };
+};
+
+const styles = {
+    textField: {
+        width: "100%",
+        marginRight: "20px"
+    },
+    checkbox: {
+        marginTop: "10px",
+        marginBottom: "10px"
+    },
+    block: {
+        maxWidth: "280px",
+        marginRight: "20px",
+        marginBottom: "20px",
+        width: "100%",
+        display: "inline-block",
+        verticalAlign: "top"
+    }
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Settings);

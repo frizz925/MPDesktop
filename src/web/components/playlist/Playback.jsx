@@ -8,6 +8,7 @@ import MaterialIcon from 'components/MaterialIcon.jsx';
 import CheckBox from 'material-ui/Checkbox';
 import { formattedTime } from 'helpers';
 import { grey400 } from 'material-ui/styles/colors';
+import { updateSeek, updateVolume, setStreaming } from 'actions';
 
 class Playback extends Component {
     classes() {
@@ -29,6 +30,7 @@ class Playback extends Component {
         var song = this.props.song;
         var status = this.props.status;
         var playback = this.props.playback;
+        var streaming = this.props.streaming;
 
         var time = playback.current;
         var maxTime = song.Time || 1000;
@@ -76,16 +78,18 @@ class Playback extends Component {
                                 <MaterialIcon style={styles.volume.icon} icon="volume_up" />
                             </div>
                             <Slider 
+                                disabled={!this.stateVolume()}
                                 style={styles.volume.slider} 
                                 min={0}
                                 max={100}
                                 defaultValue={100}
-                                value={status.volume}
+                                value={this.getVolume()}
                                 onChange={this.volumeChange.bind(this)}/>
                         </div>
                         <div style={styles.checkbox.base}>
                             {this.checkBox("Single mode", "single", status.single)}
                             {this.checkBox("Consume mode", "consume", status.consume)}
+                            {this.checkBox("Streaming", this.toggleStream.bind(this), streaming.enabled)}
                             <div is="cls"></div>
                         </div>
                     </div>
@@ -94,14 +98,52 @@ class Playback extends Component {
         );
     }
 
+    stateVolume() {
+        var status = this.props.status;
+        var streaming = this.props.streaming;
+        return streaming.enabled || status.volume >= 0;
+    }
+
+    getVolume() {
+        var status = this.props.status;
+        var streaming = this.props.streaming;
+        var volume = status.volume > 0 ? status.volume : 0;
+        if (streaming.enabled) volume = Math.round(streaming.volume * 100);
+        return volume;
+    }
+
+    toggleStream(evt, val) {
+        this.props.setStreaming(val);
+    }
+
     volumeChange(evt, val) {
-        window.mpd.command("setvol " + Math.floor(val));
+        var status = this.props.status;
+        var streaming = this.props.streaming;
+        if (streaming.enabled) {
+            this.props.setStreamingVolume(streaming.volume / 100);
+        } else {
+            if (status.volume >= 0) {
+                this.props.updateVolume(val);
+                this.timeoutChange('volume', 500, () => {
+                    window.mpd.command("setvol " + Math.round(val));
+                });
+            }
+        }
     }
 
     seekChange(evt, val) {
         var playback = this.props.playback;
         var time = val / 1000 * playback.duration;
-        window.mpd.command(this.seek(time));
+        this.props.updateSeek(time);
+        this.timeoutChange('seek', 500, () => {
+            window.mpd.command(this.seek(time));
+        });
+    }
+
+    timeouts = {};
+    timeoutChange(name, duration, callback) {
+        if (this.timeouts[name]) clearTimeout(this.timeouts[name]);
+        this.timeouts[name] = setTimeout(callback, duration);
     }
 
     buttonToggle(icon, command, state) {
@@ -120,7 +162,7 @@ class Playback extends Component {
     }
 
     seek(time) {
-        return "seek " + this.props.song.Pos + " " + Math.floor(time);
+        return "seek " + this.props.song.Pos + " " + Math.round(time);
     }
 
     button(icon, command, state) {
@@ -140,11 +182,16 @@ class Playback extends Component {
     checkBox(label, command, checked) {
         if (checked === undefined) checked = false;
         if (Number.isInteger(checked)) checked = checked == 1;
+
+        var onCheck = _.isString(command) ?
+            this.buttonClick(command + " " + (checked ? 0 : 1)) :
+            command;
+
         return <CheckBox 
             style={styles.checkbox.input} 
             label={label}
             defaultChecked={checked}
-            onCheck={this.buttonClick(command + " " + (checked ? 0 : 1))} />;
+            onCheck={onCheck} />;
     }
 
     buttonClick(command) {
@@ -153,6 +200,19 @@ class Playback extends Component {
         };
     }
 }
+
+const mapStateToProps = (state) => ({
+    song: state.song,
+    status: state.status,
+    playback: state.playback,
+    streaming: state.streaming
+});
+
+const mapDispatchToProps = (dispatch) => ({
+    updateSeek: (seek) => dispatch(updateSeek(seek)),
+    updateVolume: (volume) => dispatch(updateVolume(volume)),
+    setStreaming: (state) => dispatch(setStreaming(state))       
+});
 
 const styles = {
     'col': {
@@ -164,7 +224,9 @@ const styles = {
         display: "inline-block",
         width: "300px",
         height: "300px",
-        backgroundSize: "contain"
+        backgroundSize: "contain",
+        backgroundPosition: "50% 50%",
+        backgroundRepeat: "no-repeat"
     },
     'info': {
         'base': { textAlign: "center" },
@@ -224,10 +286,4 @@ const styles = {
     },
 };
 
-const mapStateToProps = (state) => ({
-    song: state.song,
-    status: state.status,
-    playback: state.playback
-});
-
-export default connect(mapStateToProps)(Radium(Playback));
+export default connect(mapStateToProps, mapDispatchToProps)(Radium(Playback));

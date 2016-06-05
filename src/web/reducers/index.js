@@ -1,30 +1,32 @@
 import { combineReducers } from 'redux';
-import { normalizeTrackNumber } from 'helpers';
+
 import playback from './playback';
+import status from './status';
+import stats from './stats';
+import streaming from './streaming';
+
+import * as listeners from './listeners';
 
 import { 
-    UPDATE_SONG, UPDATE_STATUS, UPDATE_SETTINGS, 
+    UPDATE_SONG, UPDATE_SETTINGS,
     UPDATE_PLAYLIST, UPDATE_OUTPUT, UPDATE_SEARCH
 } from 'actions';
 
 export default function(state, action) {
     state.playback = playback(state.playback, action);
+    state.status = status(state.status, action);
+    state.stats = stats(state.stats, action);
+    state.streaming = streaming(state.streaming, action);
 
     switch (action.type) {
         case UPDATE_SONG:
-            var song = action.song;
-            state.song = song;
-            console.log(song);
-            document.title = song.Artist + " - [" + song.Album + " #" + normalizeTrackNumber(song.Track) + "] " + song.Title;
-            break;
-        case UPDATE_STATUS:
-            state.status = action.status;
+            state.song = action.song;
+            listeners.onSongUpdate(state);
             break;
         case UPDATE_SETTINGS:
             state.settings = action.settings;
             state.settings.port = Number(state.settings.port);
-            // save settings to localStorage
-            localStorage.setItem("settings", JSON.stringify(action.settings));
+            listeners.onSettingsUpdate(action.settings);
             break;
         case UPDATE_PLAYLIST:
             state.playlist = action.playlist;

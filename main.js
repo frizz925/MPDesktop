@@ -6,7 +6,7 @@ const BrowserWindow = electron.BrowserWindow;
 
 let mainWindow;
 function createWindow() {
-    mainWindow = new BrowserWindow({width: 1000, height: 800});
+    mainWindow = new BrowserWindow({width: 1000, height: 355, useContentSize: true});
     mainWindow.loadURL(`file://${__dirname}/index.html`);
     if (process.env.NODE_ENV === "development") {
         mainWindow.webContents.openDevTools();

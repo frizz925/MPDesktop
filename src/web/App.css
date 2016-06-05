@@ -2,12 +2,13 @@
     font-size: 10pt;
 }
 
-h3, th {
+h1, h2, h3, h4, h5 th {
     color: #555;
 }
-
-h3 {
+h3, h4 {
     margin: 0;
+}
+h3 {
     font-size: 1.2em;
 }
 
