@@ -22,8 +22,6 @@ import * as actions from 'actions';
 injectTapEventPlugin();
 
 const MPD = window.backend;
-const LASTFM_API_KEY = "1dfdaeab9e98333ba63171987cff9352";
-const LASTFM_API_URL = "http://ws.audioscrobbler.com/2.0/";
 
 const muiTheme = getMuiTheme({
     palette: {
@@ -42,12 +40,14 @@ if (settings) {
     };
 }
 
+const placeholderCover = "public/images/music-icon-faded.png";
+
 var mpd;
 var initialState = {
     song: {},
     status: {},
     playback: {
-        image_url: "",
+        cover: placeholderCover,
         current: 0,
         duration: -1
     },
@@ -70,28 +70,9 @@ store.subscribe(() => {
 });
 
 function updateCover(song) {
-    var query = {
-        method: "album.getInfo",
-        artist: song.Artist,
-        album: song.Album,
-        api_key: LASTFM_API_KEY,
-        format: "json"
-    };
-
-    $.ajax({
-        url: LASTFM_API_URL + "?" + $.param(query),
-        dataType: "json",
-        success: (data) => {
-            var image_url = "public/images/music-icon-faded.png";
-            try {
-                image_url = data.album.image[3]["#text"];
-            } catch (e) {
-                // do nothing lel
-            } finally {
-                store.dispatch(actions.updateCover(image_url));
-            }
-        },
-        error: console.error
+    store.dispatch(actions.updateCover(placeholderCover));
+    window.mpd.fetchCover(song, (cover) => {
+        store.dispatch(actions.updateCover(cover));
     });
 }
 
@@ -138,11 +119,9 @@ const connectMPD = window.connectMPD = function() {
     console.log("Connecting...");
     var settings = store.getState().settings;
     mpd = window.mpd = new MPD();
-    mpd.connected = false;
-    mpd.connect(settings.host, settings.port, {
+    mpd.init(settings);
+    mpd.connect({
         init: () => {
-            console.log("Connected");
-            mpd.connected = true;
             fetchPlaylist();
             updateStatus();
             updateSong();
@@ -166,8 +145,6 @@ const connectMPD = window.connectMPD = function() {
         }
     });
     mpd.on('close', function() {
-        console.log("Disconnected");
-        mpd.connected = false;
         console.log("Reconnecting in 3 seconds");
         setTimeout(connectMPD, 3000);
     });

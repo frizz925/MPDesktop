@@ -35,10 +35,14 @@ class Playback extends Component {
         var progress = time / maxTime * 1000;
         var duration = playback.duration > 0 ? formattedTime(playback.duration) : "--:--";
 
+        var coverImageStyle = {
+            backgroundImage: `url("${playback.cover}")`
+        };
+
         return (
             <Paper is="paper">
                 <div is="wrapper">
-                    <div style={[styles.col, styles.cover, { backgroundImage: "url(" + playback.image_url + ")"  }]}></div>
+                    <div style={[styles.col, styles.cover, coverImageStyle]}></div>
                     <div style={[styles.col, styles.playback]}>
                         <div style={styles.info.base}>
                             <h3 style={styles.info.title}>{song.Title}</h3>

@@ -15,7 +15,7 @@ export default function(state = {}, action) {
             state.duration = action.song.Time;
             break;
         case UPDATE_COVER:
-            state.image_url = action.image_url;
+            state.cover = action.cover;
             break;
         case INCREMENT_SEEKER:
             if (state.current >= state.duration) return state;

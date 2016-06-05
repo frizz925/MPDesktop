@@ -1,7 +1,8 @@
 "use strict";
 var _ = require('lodash');
 var net = require('net');
-var respHandler = require('./responseHandler');
+var respHandler = require('./_responseHandler');
+var CoverFetcher = require('./_coverFetcher');
 
 /* flag definition */
 const FLAG_INIT = "init";
@@ -15,25 +16,46 @@ module.exports = function() {
     var _currentCommand;
 
     /* global variables declaration */
-    var _initCallback, _updateCallback;
+    var _settings, _initCallback, _updateCallback;
+    var _coverFetcher;
     var _idling = false;
     var _flag = FLAG_INIT;
     var _buffer = "";
+    var _socketListeners = {};
 
     /* public attribute definitions */
     self.server = {};
+    self.connected = false;
 
     /* public function definitions */
-    self.connect = function(host, port, callbacks) {
+    self.init = function(settings) {
+        _settings = settings;
+        _coverFetcher = new CoverFetcher(settings);
+    };
+
+    self.connect = function(callbacks) {
         _initCallback = callbacks.init;
         _updateCallback = callbacks.update;
 
         self.socket = new net.Socket();
-        self.socket.connect(port, host);
-        self.socket.on('data', onData);
-        self.socket.on('error', console.error);
+        self.socket.connect(_settings.port, _settings.host, function() {
+            self.connected = true;
+            console.log("Connected");
+            callbacks.connect && callbacks.connect();
+        });
+        self.socket.on('data', function(data) {
+            onData(data);
+            self.emit('error', data);
+        });
+        self.socket.on('error', function(err) {
+            self.connected = false;
+            console.error(err);
+            self.emit('error', err);
+        });
         self.socket.on('close', function() {
+            self.connected = false;
             console.log("Disconnected");
+            self.emit('close');
         });
 
         return self;
@@ -42,6 +64,11 @@ module.exports = function() {
     self.on = function(name, callback) {
         self.socket.on(name, callback);
         return self;
+    };
+
+    self.emit = function(name, args) {
+        var listener = _socketListeners[name];
+        listener && listener.apply(self, arguments.slice(1));
     };
 
     self.write = function(text) {
@@ -77,6 +104,12 @@ module.exports = function() {
 
     self.disconnect = function() {
         self.socket.destroy();
+        return self;
+    };
+
+    /* module-dependent functions */
+    self.fetchCover = function(song, callback) {
+        _coverFetcher.fetch(song, callback);
         return self;
     };
 

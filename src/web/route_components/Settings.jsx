@@ -23,7 +23,8 @@ class Settings extends Component {
                 <h3>Settings</h3>
                 {this.textField("Host", "MPD server hostname or IP address", 'host')}
                 {this.textField("Port", "MPD server port (default: 6600)", 'port')}
-                {this.textField("Password", "MPD server password (if required)", 'password', 'password')}
+                {this.textField("Password", "MPD server password (optional)", 'password', 'password')}
+                {this.textField("Directory", "MPD music directory (optional)", 'path')}
                 <br />
                 <RaisedButton 
                     label="Save"

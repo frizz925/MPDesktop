@@ -17,14 +17,14 @@ function generate(type, name) {
     };
 }
 
-export const updateSearch = generate(UPDATE_SEARCH, 'search');
-export const updateSong = generate(UPDATE_SONG, 'song');
+export const updateCover = generate(UPDATE_COVER, 'cover');
 export const updatePlayback = generate(UPDATE_PLAYBACK, 'playback');
-export const updateSettings = generate(UPDATE_SETTINGS, 'settings');
-export const updateStatus = generate(UPDATE_STATUS, 'status');
 export const updatePlaylist = generate(UPDATE_PLAYLIST, 'playlist');
+export const updateSearch = generate(UPDATE_SEARCH, 'search');
+export const updateSettings = generate(UPDATE_SETTINGS, 'settings');
+export const updateSong = generate(UPDATE_SONG, 'song');
+export const updateStatus = generate(UPDATE_STATUS, 'status');
 
-export const updateCover = generate(UPDATE_COVER, 'image_url');
 export const updateOutput = generate(UPDATE_OUTPUT, 'outputs');
 
 export function incrementSeeker() {
