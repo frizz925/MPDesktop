@@ -13,6 +13,7 @@ import 'normalize-css';
 import App from './App.jsx';
 
 import * as backend from './backend';
+import * as player from './player';
 import routes from './routes';
 import { incrementSeeker, incrementUptime, updateStats } from 'actions';
 

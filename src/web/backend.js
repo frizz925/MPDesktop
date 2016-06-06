@@ -1,6 +1,7 @@
 import { createStore } from 'redux';
 import * as actions from 'actions';
 import reducers from './reducers';
+import player from './player';
 
 export const MPD = window.backend;
 
@@ -164,18 +165,6 @@ store.subscribe(() => {
         fetchPlaylist();
     }
 
-    var streaming = state.streaming;
-    var status = state.status;
-    if (status.state == "play") {
-        if (streaming.enabled && window.audio.paused) {
-            window.audio.play();
-        } else if (!streaming.enabled && !window.audio.paused) {
-            window.audio.pause();
-        }
-    } else {
-        if (streaming.enabled && !window.audio.paused) {
-            window.audio.pause();
-        } 
-    }
+    player.storeSubscribe(state);
 });
 

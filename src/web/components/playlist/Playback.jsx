@@ -124,7 +124,7 @@ class Playback extends Component {
         } else {
             if (status.volume >= 0) {
                 this.props.updateVolume(val);
-                this.timeoutChange('volume', 500, () => {
+                this.timeoutChange('volume', 200, () => {
                     window.mpd.command("setvol " + Math.round(val));
                 });
             }
@@ -135,7 +135,7 @@ class Playback extends Component {
         var playback = this.props.playback;
         var time = val / 1000 * playback.duration;
         this.props.updateSeek(time);
-        this.timeoutChange('seek', 500, () => {
+        this.timeoutChange('seek', 200, () => {
             window.mpd.command(this.seek(time));
         });
     }

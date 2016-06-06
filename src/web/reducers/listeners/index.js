@@ -1,8 +1,10 @@
 import { normalizeTrackNumber } from 'helpers';
+import player from 'player';
 
 export function onSongUpdate(state) {
     const song = state.song;
     const settings = state.settings;
+    const playback = state.playback;
 
     console.log(song);
     var body = song.Artist + " - [" + song.Album + " #" + normalizeTrackNumber(song.Track) + "] " + song.Title;
@@ -11,23 +13,17 @@ export function onSongUpdate(state) {
     if (settings.notification) {
         new Notification("MPDesktop", { body });
     }
+
+    player.onSongUpdate(state);
 }
 
 export function onSettingsUpdate(settings) {
-    var streaming = settings.streaming;
-    var host = streaming.host || settings.host;
-    var path = streaming.path || "/";
-
-    var paused = window.audio.paused;
-    window.source.src = `http://${host}:${streaming.port}${path}`;
-    window.audio.load();
-    if (!paused) window.audio.play();
-
+    player.onSettingsUpdate(settings);
     // save settings to localStorage
     localStorage.setItem("settings", JSON.stringify(settings));
 }
 
 export function onStreamingUpdate(state) {
-    window.audio.volume = state.volume;
+    player.onStreamingUpdate(state);
 }
 
