@@ -58,8 +58,14 @@ const HOUR = MINUTE * 60;
 const DAY = HOUR * 24;
 
 function parseTime(time) {
-    var hours = Math.floor(time / HOUR);
-    return zeroPadding(hours, 2) + ":" + moment(time, "X").format("mm:ss");
+    var text = [];
+    if (time >= DAY) {
+        var days = Math.floor(time / DAY);
+        text.push(days + " days,");
+        time -= days * DAY;
+    }
+    text.push(moment(time, "X").format("HH:mm:ss"));
+    return text.join(" ");
 }
 
 const mapStateToProps = (state) => ({ stats: state.stats });
@@ -74,16 +80,7 @@ const stats = [
     {
         label: "Songs Playtime",
         name: "db_playtime",
-        callback: (time) => {
-            var text = [];
-            if (time >= DAY) {
-                var days = Math.floor(time / DAY);
-                text.push(days + " days");
-                time -= days * DAY;
-            }
-            text.push(parseTime(time));
-            return text.join(" ");
-        }
+        callback: parseTime
     },
     {
         label: "Uptime",
@@ -98,9 +95,7 @@ const stats = [
     {
         label: "Last DB Update",
         name: "db_update",
-        callback: (time) => {
-            return moment(time, "X").fromNow();
-        }
+        callback: (time) => moment(time, "X").format("YYYY-MM-DD HH:mm:ss")
     }
 ];
 
