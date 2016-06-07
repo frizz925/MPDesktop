@@ -3,6 +3,7 @@ import player from 'player';
 
 export function onSongUpdate(state) {
     const song = state.song;
+    const status = state.status;
     const settings = state.settings;
     const playback = state.playback;
 
@@ -10,7 +11,7 @@ export function onSongUpdate(state) {
     var body = song.Artist + " - [" + song.Album + " #" + normalizeTrackNumber(song.Track) + "] " + song.Title;
     document.title = body;
 
-    if (settings.notification) {
+    if (settings.notification && status.state == "play") {
         new Notification("MPDesktop", { body });
     }
 
