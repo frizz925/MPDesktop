@@ -42,24 +42,23 @@ function updateAudioStream(state) {
     var streaming = settings.streaming;
 
     var src;
+    /*
     if (streaming.local) {
         if (!song.file) return;
         src = `file://${settings.path}/${song.file}`;
         player.src(src, playback.current);
-    /*
     } else if (cover.enabled) {
         var host = cover.host || settings.host;
         var port = cover.port || 80;
         var path = cover.path || "";
         src = `http://${host}:${port}${path}/${song.file}`;
-    */
     } else {
+    */
         var host = streaming.host || settings.host;
         var path = streaming.path || "/";
         src = `http://${host}:${streaming.port}${path}`;
         player.src(src);
-    }
-
+    //}
 }
 
 export default callbacks;
