@@ -12,7 +12,7 @@ if (settings) {
     settings = {};
 }
 
-settings = _.assign({
+settings = _.merge({
     host: "localhost",
     port: 6600,
     cover: {
@@ -27,6 +27,8 @@ settings = _.assign({
         port: 8000
     }
 }, settings);
+
+console.log(settings);
 
 const placeholderCover = "public/images/music-icon-faded.png";
 

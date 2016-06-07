@@ -45,6 +45,7 @@ function updateAudioStream(state) {
     if (streaming.local) {
         if (!song.file) return;
         src = `file://${settings.path}/${song.file}`;
+        player.src(src, playback.current);
     /*
     } else if (cover.enabled) {
         var host = cover.host || settings.host;
@@ -56,9 +57,9 @@ function updateAudioStream(state) {
         var host = streaming.host || settings.host;
         var path = streaming.path || "/";
         src = `http://${host}:${streaming.port}${path}`;
+        player.src(src);
     }
 
-    player.src(src, playback.current);
 }
 
 export default callbacks;
