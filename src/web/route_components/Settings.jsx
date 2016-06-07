@@ -64,6 +64,7 @@ class Settings extends Component {
                     {this.textField("Streaming host", "Streaming server hostname (optional)", "streaming.host")}
                     {this.textField("Streaming port", "Streaming server port (default: 8000)", "streaming.port", { cast: Number })}
                     {this.textField("Streaming URL suffix", "URL suffix on streaming server (optional)", "streaming.suffix")}
+                    {this.checkbox("Stream locally", "Stream from MPD music path", "streaming.local")}
                 </div>
                 <div is="block">
                     <h3>Notification</h3>

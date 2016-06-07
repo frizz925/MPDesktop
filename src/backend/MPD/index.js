@@ -176,7 +176,7 @@ module.exports = function() {
             */
             _buffer = dataHandler.default(_buffer);
             commandInQueue();
-        } else if (_buffer.indexOf("ACK") >= 0) {
+        } else if (_buffer.match(/ACK \[\d@\d\] {.*} .+/)) {
             console.log(_buffer);
             _currentCommand = null;
             commandInQueue();

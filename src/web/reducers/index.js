@@ -26,7 +26,7 @@ export default function(state, action) {
         case UPDATE_SETTINGS:
             state.settings = action.settings;
             state.settings.port = Number(state.settings.port);
-            listeners.onSettingsUpdate(action.settings);
+            listeners.onSettingsUpdate(state);
             break;
         case UPDATE_PLAYLIST:
             state.playlist = action.playlist;

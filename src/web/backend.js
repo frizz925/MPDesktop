@@ -23,6 +23,7 @@ settings = _.assign({
     },
     notification: true,
     streaming: {
+        local: false,
         port: 8000
     }
 }, settings);
@@ -41,7 +42,7 @@ var initialState = {
     stats: {},
     streaming: {
         enabled: false,
-        volume: 1
+        volume: 100
     },
     settings,
 
@@ -156,6 +157,7 @@ export const connectMPD = window.connectMPD = function() {
 
 export function init() {
     connectMPD();
+    player.init(store.getState());
 }
 
 store.subscribe(() => {

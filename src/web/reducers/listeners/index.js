@@ -17,10 +17,10 @@ export function onSongUpdate(state) {
     player.onSongUpdate(state);
 }
 
-export function onSettingsUpdate(settings) {
-    player.onSettingsUpdate(settings);
+export function onSettingsUpdate(state) {
+    player.onSettingsUpdate(state);
     // save settings to localStorage
-    localStorage.setItem("settings", JSON.stringify(settings));
+    localStorage.setItem("settings", JSON.stringify(state.settings));
 }
 
 export function onStreamingUpdate(state) {

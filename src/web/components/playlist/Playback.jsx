@@ -108,7 +108,7 @@ class Playback extends Component {
         var status = this.props.status;
         var streaming = this.props.streaming;
         var volume = status.volume > 0 ? status.volume : 0;
-        if (streaming.enabled) volume = Math.round(streaming.volume * 100);
+        if (streaming.enabled) volume = streaming.volume;
         return volume;
     }
 
@@ -120,7 +120,7 @@ class Playback extends Component {
         var status = this.props.status;
         var streaming = this.props.streaming;
         if (streaming.enabled) {
-            this.props.setStreamingVolume(val / 100);
+            this.props.setStreamingVolume(val);
         } else {
             if (status.volume >= 0) {
                 this.props.updateVolume(val);
