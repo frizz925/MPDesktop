@@ -1,5 +1,4 @@
-import React from 'react';
-import { Component } from 'reactcss';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
@@ -14,23 +13,17 @@ class Settings extends Component {
         this.state = _.assign({}, props.settings);
     }
 
-    classes() {
-        return {
-            'default': styles
-        };
-    }
-
     render() {
         return (
             <Paper>
-                <div is="block">
+                <div style={styles.block}>
                     <h3>MPD</h3>
                     {this.textField("Host", "MPD server hostname", 'host')}
                     {this.textField("Port", "MPD server port (default: 6600)", 'port', { cast: Number })}
                     {this.textField("Password", "MPD server password (optional)", 'password', { type: 'password' })}
                     {this.textField("Directory", "MPD server music directory (optional)", 'path')}
                 </div>
-                <div is="block">
+                <div style={styles.block}>
                     <h3>Cover Art</h3>
                     {this.groupedTextFields({
                         disabled: !this.state.cover.enabled
@@ -59,14 +52,14 @@ class Settings extends Component {
                     ])}
                     {this.checkbox("Use web server", "cover.enabled")}
                 </div>
-                <div is="block">
+                <div style={styles.block}>
                     <h3>Streaming</h3>
                     {this.textField("Streaming host", "Streaming server hostname (optional)", "streaming.host")}
                     {this.textField("Streaming port", "Streaming server port (default: 8000)", "streaming.port", { cast: Number })}
                     {this.textField("Streaming URL suffix", "URL suffix on streaming server (optional)", "streaming.suffix")}
                     {/* this.checkbox("Stream locally", "streaming.local") */} 
                 </div>
-                <div is="block">
+                <div style={styles.block}>
                     <h3>Notification</h3>
                     {this.checkbox("Show notification", "notification")}
                 </div>
@@ -97,7 +90,7 @@ class Settings extends Component {
         return (
             <div key={name}>
                 <TextField
-                    is="textField"
+                    style={styles.textField}
                     floatingLabelText={label}
                     hintText={hint}
                     defaultValue={traverseObject(this.state, name)}
@@ -109,7 +102,7 @@ class Settings extends Component {
 
     checkbox(label, name) {
         return <Checkbox
-            is="checkbox"
+            style={styles.checkbox}
             key={name}
             label={label}
             defaultChecked={traverseObject(this.state, name)}
@@ -132,19 +125,17 @@ const mapStateToProps = (state) => ({
     settings: state.settings
 });
 
-const mapDispatchToProps = (dispatch, props) => {
-    return {
-        saveSettings: (settings) => {
-            dispatch(updateSettings(settings));
+const mapDispatchToProps = (dispatch, props) => ({
+    saveSettings: (settings) => {
+        dispatch(updateSettings(settings));
 
-            if (window.mpd.connected) {
-                window.mpd.disconnect();
-            } else {
-                window.connectMPD();
-            }
+        if (window.mpd.connected) {
+            window.mpd.disconnect();
+        } else {
+            window.connectMPD();
         }
-    };
-};
+    }
+});
 
 const styles = {
     textField: {
