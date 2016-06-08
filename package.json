@@ -10,7 +10,7 @@
     "watch": "webpack -w",
     "production": "cross-env NODE_ENV=production webpack",
     "build-win32": "electron-packager . --platform=win32 --arch=ia32 --out=build --overwrite --prune",
-    "build-win32": "electron-packager . --platform=win32 --arch=x64 --out=build --overwrite --prune"
+    "build-win32-x64": "electron-packager . --platform=win32 --arch=x64 --out=build --overwrite --prune"
   },
   "repository": {
     "type": "git",
