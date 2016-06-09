@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router';
 import Drawer from 'material-ui/Drawer';
 import MenuItem from 'material-ui/MenuItem';
-import MaterialIcon from 'components/MaterialIcon.jsx';
+import MaterialIcon from 'components/MaterialIcon';
 import routes from 'routes';
 
 export default class Sidebar extends Component {

@@ -1,31 +1,19 @@
-import React from 'react';
-import { Component } from 'reactcss';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Radium from 'radium';
+
 import Paper from 'components/Paper.jsx';
 import Slider from 'material-ui/Slider';
-import MaterialIcon from 'components/MaterialIcon.jsx';
+import MaterialIcon from 'components/MaterialIcon';
 import Checkbox from 'material-ui/Checkbox';
+import Styles from './styles';
+
 import { formattedTime } from 'helpers';
-import { grey400 } from 'material-ui/styles/colors';
 import { updateSeek, updateVolume, setStreaming, setStreamingVolume } from 'actions';
 
-class Playback extends Component {
-    classes() {
-        return {
-            'default': {
-                'wrapper': {
-                    display: "table",
-                    width: "100%"
-                },
-                'cls': {
-                    display: "block",
-                    clear: "both"
-                }
-            }
-        };
-    }
+const styles = Styles.toObject();
 
+class Playback extends Component {
     render() {
         var song = this.props.song;
         var status = this.props.status;
@@ -42,8 +30,8 @@ class Playback extends Component {
         };
 
         return (
-            <Paper is="paper">
-                <div is="wrapper">
+            <Paper>
+                <div style={styles.wrapper}>
                     <div style={[styles.col, styles.cover, coverImageStyle]}></div>
                     <div style={[styles.col, styles.playback]}>
                         <div style={styles.info.base}>
@@ -54,7 +42,7 @@ class Playback extends Component {
                         <div style={styles.seek.base}>
                             <div style={styles.seek.current}>{formattedTime(time)}</div>
                             <div style={styles.seek.duration}>{duration}</div>
-                            <div is="cls"></div>
+                            <div style={styles.cls}></div>
                             <Slider
                                 min={0}
                                 max={1000}
@@ -90,7 +78,7 @@ class Playback extends Component {
                             {this.checkbox("Single mode", "single", status.single == 1)}
                             {this.checkbox("Consume mode", "consume", status.consume == 1)}
                             {this.checkbox("Streaming", this.toggleStream.bind(this), streaming.enabled)}
-                            <div is="cls"></div>
+                            <div style={styles.cls}></div>
                         </div>
                     </div>
                 </div>
@@ -213,77 +201,5 @@ const mapDispatchToProps = (dispatch) => ({
     setStreaming: (state) => dispatch(setStreaming(state)),
     setStreamingVolume: (volume) => dispatch(setStreamingVolume(volume))
 });
-
-const styles = {
-    'col': {
-        display: "table-cell",
-        verticalAlign: "top",
-        marginRight: "20px"
-    },
-    'cover': {
-        display: "inline-block",
-        width: "300px",
-        height: "300px",
-        backgroundSize: "contain",
-        backgroundPosition: "50% 50%",
-        backgroundRepeat: "no-repeat"
-    },
-    'info': {
-        'base': { textAlign: "center" },
-        'album': { color: grey400 }
-    },
-    'playback': {
-        width: "100%"
-    },
-    'seek': {
-        'base': {
-            marginTop: "12px",
-            fontSize: "10pt"
-        },
-        'current': { 'float': "left" },
-        'duration': { 'float': "right" },
-        'slider': { marginTop: "-20px" }
-    },
-    'control': {
-        'base': {
-            marginTop: "-30px",
-            textAlign: "center"
-        },
-        'icon': {
-            fontSize: "28px",
-            cursor: "pointer",
-            padding: "8px",
-        },
-        'faded': { color: grey400 }
-    },
-    'volume': {
-        'base': {
-            display: "table",
-            marginTop: "-8px"
-        },
-        'icon': {
-            padding: "8px"
-        },
-        'iconWrapper': {
-            display: "table-cell",
-            verticalAlign: "top",
-            paddingTop: "12px",
-            paddingRight: "12px"
-        },
-        'slider': {
-            display: "table-cell",
-            verticalAlign: "top",
-            width: "100%"
-        }
-    },
-    'checkbox': {
-        'base': {
-            marginTop: "-24px"
-        },
-        'input': {
-            marginTop: "8px"
-        }
-    },
-};
 
 export default connect(mapStateToProps, mapDispatchToProps)(Radium(Playback));

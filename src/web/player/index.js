@@ -43,6 +43,7 @@ function updateAudioStream(state) {
 
     var src;
     /*
+    // Deprecated
     if (streaming.local) {
         if (!song.file) return;
         src = `file://${settings.path}/${song.file}`;
