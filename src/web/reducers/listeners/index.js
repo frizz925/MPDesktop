@@ -1,4 +1,4 @@
-import { normalizeTrackNumber } from 'helpers';
+import { normalizeTrackNumber, filename } from 'helpers';
 import player from 'player';
 
 export function onSongUpdate(state) {
@@ -8,7 +8,9 @@ export function onSongUpdate(state) {
     const playback = state.playback;
 
     console.log(song);
-    var body = song.Artist + " - [" + song.Album + " #" + normalizeTrackNumber(song.Track) + "] " + song.Title;
+    var body = song.Title
+        ? Artist + " - [" + song.Album + " #" + normalizeTrackNumber(song.Track) + "] " + song.Title
+        : filename(song.file);
     document.title = body;
 
     if (settings.notification && status.state == "play") {

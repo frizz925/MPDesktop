@@ -34,3 +34,7 @@ export function traverseObject(obj, query, value) {
 
     return obj;
 }
+
+export function filename(fn) {
+    return fn.match(/([^\/]+)$/).pop();
+}
