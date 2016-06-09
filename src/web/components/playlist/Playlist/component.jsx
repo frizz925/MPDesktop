@@ -10,7 +10,7 @@ import RaisedButton from 'material-ui/RaisedButton';
 import Styles from './styles';
 import Events from './events';
 
-import { formattedTime, normalizeTrackNumber } from 'helpers';
+import { formattedTime, normalizeTrackNumber, filename } from 'helpers';
 
 const styles = Styles.toObject();
 
@@ -58,7 +58,7 @@ class Playlist extends Component {
                                 {this.cell("track", normalizeTrackNumber(song.Track))}
                                 {this.cell("artist", song.Artist)}
                                 {this.cell("album", song.Album)}
-                                {this.cell("title", song.Title ? song.Title : song.file.match(/\/(.+)$/)[1])}
+                                {this.cell("title", song.Title ? song.Title : filename(song.file))}
                                 {this.cell("duration", formattedTime(song.Time))}
                             </tr>
                         ))}

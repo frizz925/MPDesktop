@@ -8,7 +8,7 @@ import MaterialIcon from 'components/MaterialIcon';
 import Checkbox from 'material-ui/Checkbox';
 import Styles from './styles';
 
-import { formattedTime } from 'helpers';
+import { formattedTime, filename } from 'helpers';
 import { updateSeek, updateVolume, setStreaming, setStreamingVolume } from 'actions';
 
 const styles = Styles.toObject();
@@ -35,7 +35,7 @@ class Playback extends Component {
                     <div style={[styles.col, styles.cover, coverImageStyle]}></div>
                     <div style={[styles.col, styles.playback]}>
                         <div style={styles.info.base}>
-                            <h3 style={styles.info.title}>{song.Title}</h3>
+                            <h3 style={styles.info.title}>{song.Title ? song.Title : song.file ? filename(song.file) : ""}</h3>
                             <div style={styles.info.artist}>{song.Artist}</div>
                             <div style={styles.info.album}>{song.Album}</div>
                         </div>
