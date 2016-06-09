@@ -81,7 +81,7 @@ class Playlist extends Component {
                                 {this.cell("track", normalizeTrackNumber(song.Track))}
                                 {this.cell("artist", song.Artist)}
                                 {this.cell("album", song.Album)}
-                                {this.cell("title", song.Title)}
+                                {this.cell("title", song.Title || song.file.match(/\/(.+)$/)[1])}
                                 {this.cell("duration", formattedTime(song.Time))}
                             </tr>
                         ))}
