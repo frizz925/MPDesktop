@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Checkbox from 'material-ui/Checkbox';
-import Paper from 'components/Paper.jsx';
+import Paper from 'components/Paper';
 
 class Output extends Component {
     style = {

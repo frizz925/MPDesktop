@@ -9,7 +9,7 @@ export function onSongUpdate(state) {
 
     console.log(song);
     var body = song.Title
-        ? Artist + " - [" + song.Album + " #" + normalizeTrackNumber(song.Track) + "] " + song.Title
+        ? song.Artist + " - [" + song.Album + " #" + normalizeTrackNumber(song.Track) + "] " + song.Title
         : filename(song.file);
     document.title = body;
 

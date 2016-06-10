@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import moment from 'moment';
 import { Component } from 'reactcss';
 import Radium from 'radium';
-import Paper from 'components/Paper.jsx';
+import Paper from 'components/Paper';
 import { zeroPadding, traverseObject } from 'helpers';
 
 class ServerInfo extends Component {

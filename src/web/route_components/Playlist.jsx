@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Paper from 'components/Paper.jsx';
+import Paper from 'components/Paper';
 
 import PlaybackComponent from 'components/playlist/Playback';
 import PlaylistComponent from 'components/playlist/Playlist';

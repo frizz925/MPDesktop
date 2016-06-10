@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Radium from 'radium';
 import { connect } from 'react-redux';
 
-import Paper from 'components/Paper.jsx';
+import Paper from 'components/Paper';
 import MaterialIcon from 'components/MaterialIcon';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';

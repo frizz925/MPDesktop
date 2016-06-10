@@ -13,10 +13,7 @@ export default class Events {
     }
 
     databind(name) {
-        return ((evt, val) => {
-            console.log(this, name, val);
-            this.value(name, val);
-        }).bind(this);
+        return ((evt, val) => this.value(name, val)).bind(this);
     }
 
     onSearchChange() {

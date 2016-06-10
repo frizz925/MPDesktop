@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 import Checkbox from 'material-ui/Checkbox';
-import Paper from 'components/Paper.jsx';
+import Paper from 'components/Paper';
 import { updateSettings } from 'actions';
 import { traverseObject } from 'helpers';
 

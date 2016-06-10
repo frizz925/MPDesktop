@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Radium from 'radium';
 
-import Paper from 'components/Paper.jsx';
 import Slider from 'material-ui/Slider';
-import MaterialIcon from 'components/MaterialIcon';
 import Checkbox from 'material-ui/Checkbox';
+import MaterialIcon from 'components/MaterialIcon';
+import Paper from 'components/Paper';
 import Styles from './styles';
 
 import { formattedTime, filename } from 'helpers';
