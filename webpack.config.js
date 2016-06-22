@@ -20,7 +20,7 @@ var config = {
     module: {
         loaders: [{
             test: /\.js(x)?$/,
-            loaders: [/* 'react-hot', */ 'babel', 'react-map-styles'],
+            loaders: [/* 'react-hot', */ 'babel'],
             include: [
                 path.join(__dirname, 'src/web')
             ],
